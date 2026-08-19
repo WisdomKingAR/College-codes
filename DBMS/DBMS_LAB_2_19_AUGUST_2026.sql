@@ -39,3 +39,12 @@ add foreign key(skill_id) references skills(skill_id);
 alter table softskills
 add foreign key(skill_id) references skills(skill_id);
 
+
+alter table student
+add s_address varchar(30);
+
+alter table student
+modify column s_address varchar(50);
+
+alter table student
+drop column s_address;
