@@ -71,3 +71,30 @@ t_id int
 );
 
 describe grades;
+
+create table skills
+(
+skill_id int primary key,
+skill_name varchar(20),
+skill_type varchar(20),
+skill_proficiency int,
+s_id int
+);
+
+describe skills;
+
+create table hardskills
+(
+skill_id int,
+technical_domain varchar(20)
+);
+
+describe hardskills;
+
+create table softskills
+(
+skill_id int,
+skill_category varchar(20)
+);
+
+describe softskills;
