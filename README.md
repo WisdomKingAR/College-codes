@@ -1,292 +1,157 @@
-# 📚 College-Codes Repository
+# College Codes
 
-A comprehensive collection of **college lecture codes** and **lab assignments** covering **Python Programming**, **Data Structures**, and **Database Management Systems (DBMS)**.
+Coursework and lab material for second-year programming subjects at D. J. Sanghvi College of Engineering. The repository contains Python notebooks, introductory data-structure programs in C, and MySQL exercises.
 
-> 🎓 **Educational Repository** | Created: August 2026 | D.J. Sanghvi College of Engineering (DJSCE)
+The files are learning material rather than a packaged application. Some notebooks preserve example outputs and errors from classwork, and the C programs use older console functions such as `conio.h`, `clrscr()`, and `getch()`.
 
----
+## Contents
 
-## 🎯 Quick Overview
+### Python notebooks
 
-This repository serves as a centralized hub for college coursework materials, containing **interactive Python lectures**, **practical data structure implementations**, and **comprehensive database design exercises**. All code is well-documented and ready for learning and reference.
+The `PYTHON/` directory contains 14 notebooks. The `.ipynb_checkpoints/` directory is generated notebook-editor metadata and is not part of the learning set.
 
-**Repository Stats:**
-- 📊 **Primary Language**: Jupyter Notebook (97.9%)
-- 🔧 **Secondary Language**: C (2.1%)
-- 📁 **Main Directories**: 3 (PYTHON, DATA STRUCTURE, DBMS)
-- 📄 **Total Learning Materials**: 7 files
-- 🏆 **Repository Type**: Private Educational
+#### Lecture notebooks
 
----
+| File                                                                                          | Focus                                                                                 |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [Lecture 01](PYTHON/Python_Lecture_01_CW_16_July_2026.ipynb)                                  | Variables, built-in types, arithmetic, comparison, identity, and membership operators |
+| [Lecture 02](PYTHON/Python_Lecture_02_CW_21_July_2026.ipynb)                                  | Input/output, type conversion, lists, tuples, and dictionaries                        |
+| [Lecture 03](PYTHON/Python_Lecture_03_CW_23_July_2026.ipynb)                                  | Conditions, nested decisions, loops, `break`, and `continue`                          |
+| [Lecture 04](PYTHON/Python_Lecture_04_CW_28_July_2026.ipynb)                                  | String indexing, slicing, methods, and whitespace handling                            |
+| [Lecture 05](PYTHON/Python_Lecture_05_CW_30_July_2026.ipynb)                                  | `range()`, loops, nested loops, sums, patterns, and Fibonacci series                  |
+| [Lecture 07](PYTHON/Python_Lecture_07_CW_06_August_2026.ipynb)                                | Lists, nested lists, tuples, sets, frozensets, dictionaries, and unpacking            |
+| [Lecture 08](PYTHON/Python_Lecture_08_CW_11_August_2026.ipynb)                                | Further list and tuple operations, iteration, comparison, and unpacking               |
+| [Lecture 08 notes absent](PYTHON/Python_Lecture_08_CW_11_August_2026%28notes_absent%29.ipynb) | Separate classwork copy covering lists, tuples, sets, and dictionaries                |
+| [Lectures 09 and 10](PYTHON/Python_Lecture_09_and10_CW_18_and_20_August_2026.ipynb)           | NumPy arrays, dimensions, shapes, data types, creation, and random values             |
+| [Lecture 11](PYTHON/Python_Lecture_11_CW_25_August_2026.ipynb)                                | Empty Python 3 notebook reserved for classwork                                        |
 
-## 📑 Table of Contents
+#### Experiment notebooks
 
-1. [Quick Start](#quick-start)
-2. [Repository Structure](#repository-structure)
-3. [What's Included](#whats-included)
-4. [Key Features](#key-features)
-5. [How to Use](#how-to-use)
-6. [Subject Coverage](#subject-coverage)
-7. [Author & Details](#author--details)
+| File                                                   | Exercises covered                                                                           |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| [Experiment 1](PYTHON/S004_Aaryan_Raorane_Exp1.ipynb)  | Input, arithmetic, averages, geometry, simple interest, temperature, distance, and swapping |
+| [Experiment 2](PYTHON/S004_Aaryan_Raorane_Exp2.ipynb)  | Conditions, triangle classification, piecewise functions, unit conversion, and strings      |
+| [Experiment 3](PYTHON/S004_Aaryan_Raorane_Expt3.ipynb) | Sums, even/odd counting, prime checking, Fibonacci, patterns, FizzBuzz, and strings         |
+| [Experiment 4](PYTHON/S004_Aaryan_Raorane_Expt4.ipynb) | List methods, filtering, sorting, reversing, sets, duplicate counting, and dictionaries     |
 
----
+Notebook outputs are retained in the files, but they should be treated as examples. Run cells again when checking or modifying a solution.
 
-## 🚀 Quick Start
+### Data structures in C
 
-### For Python Notebooks
-```bash
-pip install jupyter
-jupyter notebook
-# Open files from PYTHON/ folder
-```
+The `DATA STRUCTURE/` directory contains four menu-driven programs:
 
-### For C Programs
-```bash
-cd "DATA STRUCTURE"
-gcc [FILENAME.C] -o output
-./output
-```
+| File                                      | Structure                    | Operations                                                  |
+| ----------------------------------------- | ---------------------------- | ----------------------------------------------------------- |
+| [A1_DS_ST.C](DATA%20STRUCTURE/A1_DS_ST.C) | Fixed-size stack, capacity 4 | Push, pop, overflow, underflow                              |
+| [LQUEUE.C](DATA%20STRUCTURE/LQUEUE.C)     | Linear queue, capacity 5     | Enqueue, dequeue, front, rear, display, overflow, underflow |
+| [CQUEUE.C](DATA%20STRUCTURE/CQUEUE.C)     | Circular queue, capacity 6   | Enqueue, dequeue, front, rear, display, overflow, underflow |
+| [LINKEDLI.C](DATA%20STRUCTURE/LINKEDLI.C) | Singly linked list           | Insert/delete at beginning, end, and position; display      |
 
-### For SQL Scripts
-```bash
-mysql -u username -p
-source DBMS/[FILENAME.sql]
-```
+`LINKEDLI.C` includes menu entries for search and search-and-delete, but those cases currently contain no implementation.
 
----
+These are classroom implementations using global state and interactive input. They are useful for studying FIFO behavior, stack state, pointers, dynamic allocation, and linked-list traversal, but they are not portable production C programs as written.
 
-## 📁 Repository Structure
+### DBMS exercises
 
-```
+The `DBMS/` directory contains two SQL scripts and their supporting Word documents:
+
+| File                                                  | Role                   | Main content                                                                                        |
+| ----------------------------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------- |
+| [Lab 1 SQL](DBMS/DBMS_LAB_1_12_AUGUST_2026.sql)       | Schema                 | Creates the database and ten tables; demonstrates primary keys, `NOT NULL`, `CHECK`, and `DESCRIBE` |
+| [Lab 1 document](DBMS/DBMS_LAB_1_12_AUGUST_2026.docx) | Supporting document    | Lab 1 write-up or reference material                                                                |
+| [Lab 2 SQL](DBMS/DBMS_LAB_2_19_AUGUST_2026.sql)       | Relationships and data | Adds foreign keys, demonstrates `ALTER TABLE`, changes a column type, and inserts sample rows       |
+| [Lab 2 document](DBMS/DBMS_LAB_2_19_AUGUST_2026.docx) | Supporting document    | Lab 2 write-up or reference material                                                                |
+
+Lab 1 creates these tables: `student`, `mentor`, `subject`, `resources`, `study_pattern`, `test`, `grades`, `skills`, `hardskills`, and `softskills`. Run the scripts in order because Lab 2 depends on Lab 1's schema.
+
+The scripts are intended to be run in order in MySQL. The second script depends on the schema created by the first and uses sample data such as mentor, student, subject, test, grade, and skill records.
+
+## Repository layout
+
+The top level is organized by subject. The tree below lists every tracked learning file; the generated `.ipynb_checkpoints/` folder is intentionally omitted.
+
+```text
 College-codes/
-│
-├── 📂 PYTHON/
-│   ├── Python_Lecture_2_CW_21_July_2026.ipynb
-│   └── Python_Lecture_4_CW_28_July_2026.ipynb
-│
-├── 📂 DATA STRUCTURE/
-│   ├── CQUEUE.C
-│   ├── LQUEUE.C
-│   └── LINKEDLI.C
-│
-├── 📂 DBMS/
+├── DATA STRUCTURE/
+│   ├── A1_DS_ST.C                 # Stack
+│   ├── CQUEUE.C                   # Circular queue
+│   ├── LINKEDLI.C                 # Singly linked list
+│   └── LQUEUE.C                   # Linear queue
+├── DBMS/
+│   ├── DBMS_LAB_1_12_AUGUST_2026.docx
 │   ├── DBMS_LAB_1_12_AUGUST_2026.sql
+│   ├── DBMS_LAB_2_19_AUGUST_2026.docx
 │   └── DBMS_LAB_2_19_AUGUST_2026.sql
-│
-└── 📄 README.md
+├── PYTHON/
+│   ├── Python_Lecture_01_CW_16_July_2026.ipynb
+│   ├── Python_Lecture_02_CW_21_July_2026.ipynb
+│   ├── Python_Lecture_03_CW_23_July_2026.ipynb
+│   ├── Python_Lecture_04_CW_28_July_2026.ipynb
+│   ├── Python_Lecture_05_CW_30_July_2026.ipynb
+│   ├── Python_Lecture_07_CW_06_August_2026.ipynb
+│   ├── Python_Lecture_08_CW_11_August_2026.ipynb
+│   ├── Python_Lecture_08_CW_11_August_2026(notes_absent).ipynb
+│   ├── Python_Lecture_09_and10_CW_18_and_20_August_2026.ipynb
+│   ├── Python_Lecture_11_CW_25_August_2026.ipynb
+│   ├── S004_Aaryan_Raorane_Exp1.ipynb
+│   ├── S004_Aaryan_Raorane_Exp2.ipynb
+│   ├── S004_Aaryan_Raorane_Expt3.ipynb
+│   └── S004_Aaryan_Raorane_Expt4.ipynb
+└── README.md
 ```
 
----
+## Getting started
 
-## 📚 What's Included
+### Python
 
-### 1. 🐍 PYTHON/ - Programming Fundamentals
+Install Python 3 and Jupyter, then open the notebooks:
 
-Interactive Jupyter notebooks covering Python essentials through live coding examples and classwork problems.
+```bash
+python -m pip install jupyter numpy
+jupyter notebook
+```
 
-| File | Topics | Purpose |
-|------|--------|---------|
-| **Python_Lecture_2** | Variables, Data Types, String Formatting, I/O Operations | Foundation concepts for Python programming |
-| **Python_Lecture_4** | String Methods, Text Processing, Whitespace Handling | Intermediate string manipulation techniques |
+Open a notebook from `PYTHON/` and run its cells from top to bottom. NumPy is required for `Python_Lecture_09_and10_CW_18_and_20_August_2026.ipynb`; the other notebooks use the Python standard library.
 
-**Key Learning Areas:**
-- Variable declaration and type conversion
-- String formatting and manipulation
-- User input/output operations
-- Basic arithmetic operations
-- Interactive problem solving with classwork
+### C
 
----
+The programs include `conio.h` and calls commonly associated with Turbo C. A modern GCC installation may reject them. Use a compatible classroom environment, or replace the console-specific calls before compiling with a modern compiler.
 
-### 2. 🔧 DATA STRUCTURE/ - DSA Implementation
+For a compiler that provides those headers, the general command is:
 
-Three complete, menu-driven data structure implementations in C with comprehensive operation support.
+```bash
+gcc "DATA STRUCTURE/CQUEUE.C" -o cqueue
+```
 
-| Program | Type | Features | Size |
-|---------|------|----------|------|
-| **CQUEUE.C** | Circular Queue | Enqueue, Dequeue, Front, Rear, Display | ~116 lines |
-| **LQUEUE.C** | Linear Queue | Enqueue, Dequeue, Front, Rear, Display | ~103 lines |
-| **LINKEDLI.C** | Singly Linked List | Insert/Delete (Begin/End/Position), Search, Display | ~260 lines |
+The `.C` extension may cause a compiler to treat the file as C++; use an explicit C language option where appropriate, for example `gcc -x c ...`, and test each program independently.
 
-**Core Concepts Demonstrated:**
-- FIFO (First-In-First-Out) principle
-- Pointer manipulation and dynamic memory management
-- Menu-driven interactive interfaces
-- Error handling (overflow/underflow conditions)
-- Node-based data structures
+### MySQL
 
----
+Connect to MySQL and run the scripts in this order:
 
-### 3. 💾 DBMS/ - Database Design & SQL
+```sql
+SOURCE DBMS/DBMS_LAB_1_12_AUGUST_2026.sql;
+SOURCE DBMS/DBMS_LAB_2_19_AUGUST_2026.sql;
+```
 
-Comprehensive SQL labs demonstrating relational database design with 10 interconnected tables.
+Review the statements before running them on a shared server: the scripts create a database, alter tables, and insert sample data.
 
-| Script | Focus | Operations |
-|--------|-------|-----------|
-| **DBMS_LAB_1** | Schema Creation | Table definitions with constraints (Primary Key, Check, Not Null) |
-| **DBMS_LAB_2** | Relationships & Data | Foreign keys, constraints, alterations, and data insertion |
+## Suggested study order
 
-**Database Features:**
-- 10 related tables (Student, Mentor, Subject, Resources, Skills, etc.)
-- Complex relational schema demonstrating real-world database design
-- Hierarchical relationships (Hard Skills, Soft Skills inheritance)
-- Data integrity through constraints
-- Complete DML and DDL operations
+1. Work through the Python lecture notebooks from 01 to 05.
+2. Continue with the collection notebooks 07 and 08, then the NumPy notebook.
+3. Use the experiment notebooks to practise the fundamentals as small programs.
+4. Read `A1_DS_ST.C`, then compare linear and circular queues before studying `LINKEDLI.C`.
+5. Run the DBMS lab scripts in order and inspect the table relationships and sample rows.
 
----
+## Notes
 
-## ✨ Key Features
+- This is an educational coursework repository maintained by Aaryan Raorane (S004).
+- Filenames and dates reflect the classwork and lab submission organization.
+- The repository has not been presented as a single tested build; validate individual notebooks, C programs, and SQL statements in the environment where you plan to use them.
 
-✅ **Well-Structured & Commented** - Easy to understand code with clear documentation  
-✅ **Interactive Learning** - Jupyter notebooks for hands-on Python practice  
-✅ **Production-Ready Code** - Proper error handling and edge cases covered  
-✅ **Multiple Paradigms** - Python (OOP), C (Procedural), SQL (Declarative)  
-✅ **Complete Solutions** - Lab assignments with all required operations  
-✅ **Memory-Safe Implementation** - Proper allocation and deallocation in C  
-✅ **Educational Focus** - Designed for learning core computer science concepts  
-✅ **Ready-to-Execute** - All programs can be run immediately without modifications  
+## Links
 
----
-
-## 💡 How to Use
-
-### Learning Path
-
-**Beginner:**
-1. Start with `Python_Lecture_2` for Python basics
-2. Understand fundamental string operations in `Python_Lecture_4`
-3. Practice with linear and circular queues in `DATA STRUCTURE/`
-
-**Intermediate:**
-1. Study the linked list implementation in `LINKEDLI.C`
-2. Explore database schema in `DBMS_LAB_1`
-3. Understand relationships in `DBMS_LAB_2`
-
-**Advanced:**
-1. Combine concepts: Database with data structures
-2. Optimize queries and operations
-3. Design your own schemas based on DBMS templates
-
-### Reference Guide
-
-- **For Python Help**: Open Jupyter notebooks and run cells interactively
-- **For Data Structures**: Refer to C programs, compile, and test with different inputs
-- **For Database**: Execute SQL scripts to see schema creation and operations
-- **For Problem Solving**: Use classwork examples as templates for similar problems
-
----
-
-## 📖 Subject Coverage
-
-### Python Programming
-- ✅ Variables and Type System
-- ✅ String Operations and Methods
-- ✅ Input/Output Operations
-- ✅ Data Type Conversion
-- ✅ Arithmetic Operations
-- ✅ Format Strings
-
-### Data Structures & Algorithms
-- ✅ Queue Data Structure (Linear & Circular)
-- ✅ Linked Lists (Singly)
-- ✅ Dynamic Memory Management
-- ✅ Pointer Operations
-- ✅ Tree Concepts (via inheritance)
-- ✅ Complexity Analysis
-
-### Database Management Systems
-- ✅ Database Design Principles
-- ✅ Relational Model
-- ✅ Schema Creation
-- ✅ Integrity Constraints
-- ✅ Foreign Key Relationships
-- ✅ DDL Operations (Create, Alter, Drop)
-- ✅ DML Operations (Insert, Select, Update)
-- ✅ Hierarchical Data Modeling
-
----
-
-## 👤 Author & Details
-
-| Information | Details |
-|---|---|
-| **Author** | Aaryan Raorane |
-| **Student ID** | S004 |
-| **Institution** | D.J. Sanghvi College of Engineering (DJSCE) |
-| **Position** | Web Development Intern |
-| **Repository Status** | Private Educational |
-| **Date Created** | August 18-20, 2026 |
-| **Repository Type** | Coursework & Lab Assignments |
-
----
-
-## 📊 Repository Highlights
-
-### Statistics
-- **Total Files**: 7 learning materials
-- **Lines of Code**: 500+ across all programs
-- **Database Tables**: 10 interconnected tables
-- **Data Structure Operations**: 15+ operations demonstrated
-- **Topics Covered**: 25+ core CS concepts
-
-### Quality Metrics
-- ✅ All code compiles and runs successfully
-- ✅ Comprehensive error handling implemented
-- ✅ Menu-driven interfaces for user interaction
-- ✅ Complete lab solutions provided
-- ✅ Documentation with inline comments
-
----
-
-## 🎓 Educational Value
-
-This repository is designed as:
-- 📚 **Study Material** - For exam preparation and concept review
-- 🔍 **Reference Code** - For understanding implementation patterns
-- 💻 **Practice Platform** - For hands-on coding experience
-- 📋 **Lab Solution Guide** - For completing assignments
-- 🧠 **Learning Resource** - For building CS fundamentals
-
----
-
-## 🔗 Quick Links
-
-| Resource | Purpose |
-|----------|---------|
-| [Python Folder](PYTHON/) | Interactive Jupyter Notebooks |
-| [Data Structure Folder](DATA%20STRUCTURE/) | C Implementation Programs |
-| [DBMS Folder](DBMS/) | SQL Database Scripts |
-
----
-
-## 📝 Notes for Users
-
-- 🔒 This is a **private educational repository** created for college coursework
-- 💡 Code is provided as **reference material** - modify and adapt as needed
-- 🏫 Perfect for **learning** and **exam preparation**
-- 🤝 Feel free to **fork or reference** for similar projects
-- ⚡ All materials are **self-contained** and ready to use
-- 🖥️ Requires appropriate tools (Python, GCC, MySQL) for execution
-
----
-
-## 📞 Repository Information
-
-**Owner**: [WisdomKingAR](https://github.com/WisdomKingAR)  
-**Visibility**: Private  
-**Collaborators**: Educational Use Only  
-**Last Updated**: August 20, 2026
-
----
-
-## 🌟 Summary
-
-The **College-Codes** repository is a **well-organized, comprehensive learning resource** that covers three fundamental areas of computer science: **Python Programming**, **Data Structures**, and **Database Management**. Each section provides **practical, working code** with **clear documentation**, making it an invaluable resource for students learning these core concepts.
-
-Whether you're preparing for exams, completing lab assignments, or reinforcing your understanding of CS fundamentals, this repository offers **complete solutions** and **learning materials** to support your educational journey.
-
----
-
-**⭐ A comprehensive educational repository for college coursework in Python, Data Structures, and DBMS**
-
-*Last Updated: August 20, 2026*
+- [Python notebooks](PYTHON/)
+- [Data structure programs](DATA%20STRUCTURE/)
+- [DBMS scripts and lab documents](DBMS/)
