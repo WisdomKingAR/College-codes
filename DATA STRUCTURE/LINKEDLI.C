@@ -1,137 +1,137 @@
-#include<stdio.h>
-#include<conio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
 
 struct Node
 {
 	int data;
-	struct Node* next;
+	struct Node *next;
 };
 
-struct Node* node;
-struct Node* list;
-struct Node* last;
-int count=0;
+struct Node *node;
+struct Node *list;
+struct Node *last;
+int count = 0;
 
-struct Node* createNode(int info)
+struct Node *createNode(int info)
 {
-	struct Node* node = (struct Node*) malloc(sizeof(struct Node));
-	node -> data = info;
-	node -> next = NULL;
-	count+=1;
+	struct Node *node = (struct Node *)malloc(sizeof(struct Node));
+	node->data = info;
+	node->next = NULL;
+	count += 1;
 	return node;
 }
 
 void addAtBegin(int info)
 {
 	node = createNode(info);
-	if(list == NULL)
+	if (list == NULL)
 	{
-		list=node;
-		last=node;
+		list = node;
+		last = node;
 	}
 	else
 	{
-		node -> next =list;
+		node->next = list;
 		list = node;
 	}
 }
 void addAtEnd(int info)
 {
 	node = createNode(info);
-	if(list == NULL)
+	if (list == NULL)
 	{
-		list=node;
-		last=node ;
+		list = node;
+		last = node;
 	}
 	else
 	{
-		last->next=node;
-		last=node;
+		last->next = node;
+		last = node;
 	}
 }
-void addAtPosition(int info,int pos)
+void addAtPosition(int info, int pos)
 {
 	int i;
-	if(pos == 0)
+	if (pos == 0)
 	{
 		addAtBegin(info);
 	}
-	else if(pos == (count+1))
+	else if (pos == (count + 1))
 	{
 		addAtEnd(info);
 	}
 	else
 	{
-		struct Node* p;
-		struct Node* q;
+		struct Node *p;
+		struct Node *q;
 		node = createNode(info);
-		p=list;
-		q=list;
-		for(i=0;i<pos;i++)
-			{
-			p=q;
-			q=q->next;
-			}
-		p->next=node;
-		node->next=q;
+		p = list;
+		q = list;
+		for (i = 0; i < pos; i++)
+		{
+			p = q;
+			q = q->next;
+		}
+		p->next = node;
+		node->next = q;
 	}
 }
 void deleteAtBegin()
 {
-	if(list == NULL)
+	if (list == NULL)
 	{
 		printf("\nList is Empty\n");
 	}
 	else
 	{
-		struct Node* temp;
+		struct Node *temp;
 		temp = list;
-		list = list -> next;
+		list = list->next;
 		free(temp);
-		if(list == NULL)
-			{
-				last = NULL;
-			}
-		count-=1;
+		if (list == NULL)
+		{
+			last = NULL;
+		}
+		count -= 1;
 	}
 }
 void deleteAtEnd()
 {
-	if(list == NULL)
+	if (list == NULL)
 	{
 		printf("\nList is Empty\n");
 	}
-	else if (list->next == NULL) 
+	else if (list->next == NULL)
 	{
-		struct Node* temp;
+		struct Node *temp;
 		temp = list;
 		list = NULL;
 		last = NULL;
 		free(temp);
-		count-=1;
+		count -= 1;
 	}
 	else
 	{
-		struct Node* temp;
-		struct Node* p;
-		temp=list;
-		p=temp;
-		while(temp->next != NULL)
+		struct Node *temp;
+		struct Node *p;
+		temp = list;
+		p = temp;
+		while (temp->next != NULL)
 		{
-			p=temp;
-			temp=temp->next;
+			p = temp;
+			temp = temp->next;
 		}
 		p->next = NULL;
 		last = p;
-		count-=1;
+		count -= 1;
 		free(temp);
 	}
 }
 void deleteAtPosition(int pos)
 {
 	int i;
-	if(pos==0)
+	if (pos == 0)
 	{
 		deleteAtBegin();
 	}
@@ -141,119 +141,257 @@ void deleteAtPosition(int pos)
 	}
 	else
 	{
-		struct Node* p;
-		struct Node* temp;
-		p=list;
-		temp=list;
-		for(i=0;i<pos;i++)
-			{
-			p=temp;
-			temp=temp->next;
-			}
-		p->next=temp->next;
-		count-=1;
+		struct Node *p;
+		struct Node *temp;
+		p = list;
+		temp = list;
+		for (i = 0; i < pos; i++)
+		{
+			p = temp;
+			temp = temp->next;
+		}
+		p->next = temp->next;
+		count -= 1;
 		free(temp);
 	}
 }
+void searchNode(int key)
+{
+	struct Node *temp;
+	int pos = 0;
+	int found = 0;
+	temp = list;
+	while (temp != NULL)
+	{
+		if (temp->data == key)
+		{
+			printf("\nElement %d found at position %d\n", key, pos);
+			found = 1;
+			break;
+		}
+		temp = temp->next;
+		pos += 1;
+	}
+	if (found == 0)
+		printf("\nElement %d not found in the list\n", key);
+}
+void searchNodeAndDelete(int key)
+{
+	struct Node *temp;
+	struct Node *prev;
+	if (list == NULL)
+	{
+		printf("\nList is Empty\n");
+		return;
+	}
+	temp = list;
+	prev = NULL;
+	while (temp != NULL && temp->data != key)
+	{
+		prev = temp;
+		temp = temp->next;
+	}
+	if (temp == NULL)
+	{
+		printf("\nElement %d not found. Nothing deleted.\n", key);
+		return;
+	}
+	if (prev == NULL)
+		list = temp->next;
+	else
+		prev->next = temp->next;
+	if (temp == last)
+		last = prev;
+	free(temp);
+	count -= 1;
+	printf("\nElement %d deleted successfully\n", key);
+}
+void rotateList(int k)
+{
+	struct Node *temp;
+	struct Node *newHead;
+	int i;
+	if (list == NULL || list->next == NULL || k == 0)
+	{
+		printf("\nRotation not needed\n");
+		return;
+	}
+	k = k % count;
+	if (k == 0)
+	{
+		printf("\nRotation not needed\n");
+		return;
+	}
+	temp = list;
+	for (i = 1; i < k; i++)
+		temp = temp->next;
+
+	newHead = temp->next;
+	temp->next = NULL;
+	last->next = list;
+	last = temp;
+	list = newHead;
+
+	printf("\nList rotated left by %d successfully\n", k);
+}
+void removeDuplicates()
+{
+	struct Node *current;
+	struct Node *runner;
+	struct Node *temp;
+	if (list == NULL)
+	{
+		printf("\nList is Empty\n");
+		return;
+	}
+	current = list;
+	while (current != NULL)
+	{
+		runner = current;
+		while (runner->next != NULL)
+		{
+			if (runner->next->data == current->data)
+			{
+				temp = runner->next;
+				runner->next = runner->next->next;
+				if (temp == last)
+					last = runner;
+				free(temp);
+				count -= 1;
+			}
+			else
+			{
+				runner = runner->next;
+			}
+		}
+		current = current->next;
+	}
+	printf("\nDuplicates removed successfully\n");
+}
 void display()
 {
-	struct Node* temp;
-	temp=list;
-	if(list==NULL)
+	struct Node *temp;
+	temp = list;
+	if (list == NULL)
 	{
 		printf("List is Empty");
 	}
 	else
 	{
-		while(temp!=NULL)
-			{
-				printf("\t %d",temp->data);
-				temp = temp -> next;
-			}
+		while (temp != NULL)
+		{
+			printf("\t %d", temp->data);
+			temp = temp->next;
+		}
 	}
-	free(temp);
 }
 void main()
 {
-	int choice,data,exit=0,pos;
+	int choice, data, exit = 0, pos;
 	clrscr();
 	do
 	{
-	printf("\n\nLinked List\n\n");
-	printf("1.  Add node at Begin\n");
-	printf("2.  Add node at End\n");
-	printf("3.  Add at Position\n");
-	printf("4.  Delete node at Begin\n");
-	printf("5.  Delete node at End\n");
-	printf("6.  Delete at Position\n");
-	printf("7.  Search Node\n");
-	printf("8.  Search and Delete\n");
-	printf("9.  Display\n");
-	printf("10. Exit\n");
-	printf("Enter Choice : ");
-	scanf("%d",&choice);
-	switch(choice)
-	 {
-	  case 1:
-	  {
-		printf("Enter data : ");
-		scanf("%d",&data);
-		addAtBegin(data);
-		display();
-	  }
-	  break;
-	  case 2:
-	  {
-		printf("Enter data :");
-		scanf("%d",&data);
-		addAtEnd(data);
-		display();
-	  }
-	  break;
-	  case 3:
-	  {
-		printf("Enter data : ");
-		scanf("%d",&data);
-		printf("Enter Position : ");
-		scanf("%d",&pos);
-		addAtPosition(data,pos);
-		display();
-	  }
-	  break;
-	  case 4:
-	  {
-		deleteAtBegin();
-		display();
-	  }
-	  break;
-	  case 5:
-	  {
-		deleteAtEnd();
-		display();
-	  }
-	  break;
-	  case 6:
-	  {
-		printf("Enter the position : ");
-		scanf("%d",&pos);
-		deleteAtPosition(pos);
-		display();
-	  }
-	  break;
-	  case 7:
-	  {}
-	  break;
-	  case 8:
-	  {}
-	  break;
-	  case 9:
-	  {
-		display();
-	  }
-	  break;
-	  case 10: exit=1;
-	 }
-	}while(exit!=1);
+		printf("\n\nLinked List\n\n");
+		printf("1.  Add node at Begin\n");
+		printf("2.  Add node at End\n");
+		printf("3.  Add at Position\n");
+		printf("4.  Delete node at Begin\n");
+		printf("5.  Delete node at End\n");
+		printf("6.  Delete at Position\n");
+		printf("7.  Search Node\n");
+		printf("8.  Search and Delete\n");
+		printf("9.  Display\n");
+		printf("10. Rotate List\n");
+		printf("11. Remove Duplicates\n");
+		printf("12. Exit\n");
+		printf("Enter Choice : ");
+		scanf("%d", &choice);
+		switch (choice)
+		{
+		case 1:
+		{
+			printf("Enter data : ");
+			scanf("%d", &data);
+			addAtBegin(data);
+			display();
+		}
+		break;
+		case 2:
+		{
+			printf("Enter data :");
+			scanf("%d", &data);
+			addAtEnd(data);
+			display();
+		}
+		break;
+		case 3:
+		{
+			printf("Enter data : ");
+			scanf("%d", &data);
+			printf("Enter Position : ");
+			scanf("%d", &pos);
+			addAtPosition(data, pos);
+			display();
+		}
+		break;
+		case 4:
+		{
+			deleteAtBegin();
+			display();
+		}
+		break;
+		case 5:
+		{
+			deleteAtEnd();
+			display();
+		}
+		break;
+		case 6:
+		{
+			printf("Enter the position : ");
+			scanf("%d", &pos);
+			deleteAtPosition(pos);
+			display();
+		}
+		break;
+		case 7:
+		{
+			printf("Enter element to search : ");
+			scanf("%d", &data);
+			searchNode(data);
+		}
+		break;
+		case 8:
+		{
+			printf("Enter element to search and delete : ");
+			scanf("%d", &data);
+			searchNodeAndDelete(data);
+			display();
+		}
+		break;
+		case 9:
+		{
+			display();
+		}
+		break;
+		case 10:
+		{
+			printf("Enter number of positions to rotate : ");
+			scanf("%d", &pos);
+			rotateList(pos);
+			display();
+		}
+		break;
+		case 11:
+		{
+			removeDuplicates();
+			display();
+		}
+		break;
+		case 12:
+			exit = 1;
+		}
+	} while (exit != 1);
 	fflush(stdin);
 	getch();
 }
