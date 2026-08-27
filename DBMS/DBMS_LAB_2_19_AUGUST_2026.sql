@@ -1,4 +1,4 @@
-use aaryan_raorane_s004
+use aaryan_raorane_s004;
 
 alter table student
 add foreign key(m_id) references mentor(m_id);
@@ -61,31 +61,31 @@ modify column m_contact varchar(10);
 
 insert into mentor values(
 101,'sudhir','pratik','dekhne',9556800157,7
-)
+);
 
 insert into mentor values(
 102,'devendra','uddav','fadnavis',8856422103,5
-)
+);
 
-select * from mentor
+select * from mentor;
 
 insert into student values(
 101,'doraemon','M',20,101
-)
+);
 
-select * from student
+select * from student;
 
 insert into subject values(
 101,'DBMS',4,101
-)
+);
 
-select * from subject
+select * from subject;
 
 insert into resources values(
 101,'DBMS Notes','101',101,101
-)
+);
 
-select * from resources
+select * from resources;
 
 insert into study_pattern values(
 101,'Rot learning',12,101,101
@@ -109,7 +109,7 @@ insert into skills values(
 101,'creatives','soft skill','7',101
 );
 
-select * from skills
+select * from skills;
 
 insert into softskills values(
 101,'creative working'
@@ -121,10 +121,23 @@ insert into skills values(
 102,'DSA','tech skill','8',101
 );
 
-select * from skills
+select * from skills;
 
 insert into hardskills values(
 102,'general'
 );
 
 select * from hardskills;
+
+select * from mentor;
+
+update mentor
+set m_last_name = 'Latke' 
+where m_id = 102;
+
+select * from mentor;
+
+delete from mentor
+where m_id = 102;
+
+select * from mentor;
