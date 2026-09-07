@@ -8,22 +8,23 @@ The files are learning material rather than a packaged application. Some noteboo
 
 ### Python notebooks
 
-The `PYTHON/` directory contains 14 notebooks. The `.ipynb_checkpoints/` directory is generated notebook-editor metadata and is not part of the learning set.
+The `PYTHON/` directory contains 16 notebooks. The `.ipynb_checkpoints/` directory is generated notebook-editor metadata and is not part of the learning set.
 
 #### Lecture notebooks
 
-| File                                                                                          | Focus                                                                                 |
-| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| [Lecture 01](PYTHON/Python_Lecture_01_CW_16_July_2026.ipynb)                                  | Variables, built-in types, arithmetic, comparison, identity, and membership operators |
-| [Lecture 02](PYTHON/Python_Lecture_02_CW_21_July_2026.ipynb)                                  | Input/output, type conversion, lists, tuples, and dictionaries                        |
-| [Lecture 03](PYTHON/Python_Lecture_03_CW_23_July_2026.ipynb)                                  | Conditions, nested decisions, loops, `break`, and `continue`                          |
-| [Lecture 04](PYTHON/Python_Lecture_04_CW_28_July_2026.ipynb)                                  | String indexing, slicing, methods, and whitespace handling                            |
-| [Lecture 05](PYTHON/Python_Lecture_05_CW_30_July_2026.ipynb)                                  | `range()`, loops, nested loops, sums, patterns, and Fibonacci series                  |
-| [Lecture 07](PYTHON/Python_Lecture_07_CW_06_August_2026.ipynb)                                | Lists, nested lists, tuples, sets, frozensets, dictionaries, and unpacking            |
-| [Lecture 08](PYTHON/Python_Lecture_08_CW_11_August_2026.ipynb)                                | Further list and tuple operations, iteration, comparison, and unpacking               |
-| [Lecture 08 notes absent](PYTHON/Python_Lecture_08_CW_11_August_2026%28notes_absent%29.ipynb) | Separate classwork copy covering lists, tuples, sets, and dictionaries                |
-| [Lectures 09 and 10](PYTHON/Python_Lecture_09_and10_CW_18_and_20_August_2026.ipynb)           | NumPy arrays, dimensions, shapes, data types, creation, and random values             |
-| [Lecture 11](PYTHON/Python_Lecture_11_CW_25_August_2026.ipynb)                                | Empty Python 3 notebook reserved for classwork                                        |
+| File                                                                                              | Focus                                                                                 |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [Lecture 01](PYTHON/Python_Lecture_01_CW_16_July_2026.ipynb)                                      | Variables, built-in types, arithmetic, comparison, identity, and membership operators |
+| [Lecture 02](PYTHON/Python_Lecture_02_CW_21_July_2026.ipynb)                                      | Input/output, type conversion, lists, tuples, and dictionaries                        |
+| [Lecture 03](PYTHON/Python_Lecture_03_CW_23_July_2026.ipynb)                                      | Conditions, nested decisions, loops, `break`, and `continue`                          |
+| [Lecture 04](PYTHON/Python_Lecture_04_CW_28_July_2026.ipynb)                                      | String indexing, slicing, methods, and whitespace handling                            |
+| [Lecture 05](PYTHON/Python_Lecture_05_CW_30_July_2026.ipynb)                                      | `range()`, loops, nested loops, sums, patterns, and Fibonacci series                  |
+| [Lecture 07](PYTHON/Python_Lecture_07_CW_06_August_2026.ipynb)                                    | Lists, nested lists, tuples, sets, frozensets, dictionaries, and unpacking            |
+| [Lecture 08](PYTHON/Python_Lecture_08_CW_11_August_2026.ipynb)                                    | Further list and tuple operations, iteration, comparison, and unpacking               |
+| [Lecture 08 notes absent](PYTHON/Python_Lecture_08_CW_11_August_2026%28notes_absent%29.ipynb)     | Separate classwork copy covering lists, tuples, sets, and dictionaries                |
+| [Lectures 09 and 10](PYTHON/Python_Lecture_09_and10_CW_18_and_20_August_2026.ipynb)               | NumPy arrays, dimensions, shapes, data types, creation, and random values             |
+| [Lecture 11 (current copy)](PYTHON/Python_Lecture_11_CW_3_September_2026.ipynb)                   | Pandas `Series` and `DataFrame` basics, indexing, labels, and table creation          |
+| [Lecture 11 (absent copy)](PYTHON/Python_Lecture_11_CW_18_and_3_September_2026%28absent%29.ipynb) | Earlier classwork copy containing the same Pandas examples and dataset exercises      |
 
 #### Experiment notebooks
 
@@ -33,6 +34,7 @@ The `PYTHON/` directory contains 14 notebooks. The `.ipynb_checkpoints/` directo
 | [Experiment 2](PYTHON/S004_Aaryan_Raorane_Exp2.ipynb)  | Conditions, triangle classification, piecewise functions, unit conversion, and strings      |
 | [Experiment 3](PYTHON/S004_Aaryan_Raorane_Expt3.ipynb) | Sums, even/odd counting, prime checking, Fibonacci, patterns, FizzBuzz, and strings         |
 | [Experiment 4](PYTHON/S004_Aaryan_Raorane_Expt4.ipynb) | List methods, filtering, sorting, reversing, sets, duplicate counting, and dictionaries     |
+| [Experiment 5](PYTHON/S004_Aaryan_Raorane_Expt5.ipynb) | Additional Python practice covering more problem-solving and revision exercises             |
 
 Notebook outputs are retained in the files, but they should be treated as examples. Run cells again when checking or modifying a solution.
 
@@ -92,11 +94,13 @@ College-codes/
 │   ├── Python_Lecture_08_CW_11_August_2026.ipynb
 │   ├── Python_Lecture_08_CW_11_August_2026(notes_absent).ipynb
 │   ├── Python_Lecture_09_and10_CW_18_and_20_August_2026.ipynb
-│   ├── Python_Lecture_11_CW_25_August_2026.ipynb
+│   ├── Python_Lecture_11_CW_18_and_3_September_2026(absent).ipynb
+│   ├── Python_Lecture_11_CW_3_September_2026.ipynb
 │   ├── S004_Aaryan_Raorane_Exp1.ipynb
 │   ├── S004_Aaryan_Raorane_Exp2.ipynb
 │   ├── S004_Aaryan_Raorane_Expt3.ipynb
-│   └── S004_Aaryan_Raorane_Expt4.ipynb
+│   ├── S004_Aaryan_Raorane_Expt4.ipynb
+│   └── S004_Aaryan_Raorane_Expt5.ipynb
 └── README.md
 ```
 
