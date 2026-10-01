@@ -1,0 +1,71 @@
+# Dependencies — 388 MB across ~27k files. Restored with `npm ci`.
+node_modules/
+.pnp
+.pnp.js
+
+# Build output. Rebuilt with `npm run build`.
+dist/
+dist-ssr/
+*.local
+
+# Third-party source model. Public domain (NASA / Michael D. Carbajal) and
+# re-fetched with `npm run model:fetch`, so it is kept out of git history.
+# The *generated* parts model in public/models/ IS committed, which is what
+# lets a fresh clone run `npm run dev` with no extra steps.
+assets/source/*.glb
+assets/source/*.gltf
+
+# Vite / TypeScript caches
+.vite/
+node_modules/.tmp/
+*.tsbuildinfo
+
+# Test / tool caches
+.eslintcache
+.stylelintcache
+.vitest/
+coverage/
+*.lcov
+
+# Environment files. Never commit these; .example files are the exception.
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor and OS cruft
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python leftovers — these sometimes appear in a mixed repo like this one.
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Anything genuinely secret that slipped into the tree
+*.pem
+*.key
+.env.local

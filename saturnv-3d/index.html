@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#04060a" />
+    <title>Saturn V — Anatomy of the Apollo Rocket</title>
+    <meta
+      name="description"
+      content="An interactive 3D breakdown of every stage of the Saturn V launch vehicle and the Apollo spacecraft, from the F-1 engines to the launch escape tower."
+    />
+    <link rel="preload" href="/models/SaturnV-parts.glb" as="fetch" type="model/gltf-binary" crossorigin />
+    <style>
+      /* Painted before React mounts so there is no white flash. */
+      html {
+        background: #04060a;
+        color: #e8edf5;
+      }
+      #boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        gap: 0.75rem;
+        justify-items: center;
+        font: 500 0.75rem/1 ui-monospace, monospace;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #8b97a8;
+        background: #04060a;
+        z-index: 50;
+      }
+      #boot::after {
+        content: '';
+        width: 120px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #fc3d21, transparent);
+        animation: boot-pulse 1.4s ease-in-out infinite;
+      }
+      @keyframes boot-pulse {
+        0%,
+        100% {
+          opacity: 0.25;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="boot">Loading vehicle</div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
