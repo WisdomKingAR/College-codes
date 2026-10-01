@@ -1,4 +1,4 @@
-import SplitText from '@/components/SplitText'
+import { SplitHeading } from '@/ui/motion'
 
 export function Hero() {
   return (
@@ -10,17 +10,10 @@ export function Hero() {
         National Aeronautics and Space Administration · Launch Vehicle
       </p>
 
-      <SplitText
+      <SplitHeading
         tag="h1"
         text="SATURN V"
         className="text-[clamp(3rem,13vw,11rem)] leading-[0.85] font-semibold tracking-[-0.03em] text-chalk"
-        splitType="chars"
-        from={{ yPercent: 110, opacity: 0, rotateX: -70 }}
-        to={{ yPercent: 0, opacity: 1, rotateX: 0 }}
-        duration={1.1}
-        ease="expo.out"
-        delay={0.15}
-        threshold={0.05}
       />
 
       <p className="mt-8 max-w-xl text-base leading-relaxed text-muted sm:text-lg">

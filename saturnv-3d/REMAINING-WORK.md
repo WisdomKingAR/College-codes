@@ -1,241 +1,271 @@
 # Saturn V 3D — remaining execution work
 
-Status as of handoff: **Phase 1 and Phase 2 are complete and verified.** Phases 3–6 have
-code written but have **never been rendered in a browser**. Phase 7 has not started.
+Status: **all code work is complete and every automated gate passes.** What is left is
+the browser verification that cannot be done without opening the page — see section 1.
 
-Read the blocker section first — one bug in Phase 4's code stops the page scrolling
-entirely.
-
----
-
-## 1. Blockers to fix before anything else
-
-### 1.1 Lenis will not scroll (critical)
-
-`src/App.tsx` configures Lenis with `autoRaf: false`, but the GSAP ticker bridge that
-drives `lenis.raf()` was never written. With `autoRaf: false` and no bridge, Lenis never
-advances its internal animation and the page does not scroll.
-
-Add the bridge inside the existing `gsap.context(...)` in `src/App.tsx`, so it is torn
-down correctly with the rest of the context:
-
-```ts
-// One clock for the whole site: GSAP's ticker drives Lenis, ScrollTrigger and
-// the R3F render loop. Two competing rAF loops is the usual source of jitter.
-const update = (time: number) => {
-  lenisRef.current?.lenis?.raf(time * 1000)
-}
-gsap.ticker.add(update)
-gsap.ticker.lagSmoothing(0)
-
-// Lenis wraps native scroll, so this keeps ScrollTrigger in step.
-lenisRef.current?.lenis?.on('scroll', ScrollTrigger.update)
-
-return () => {
-  gsap.ticker.remove(update)
-}
+```
+npm run typecheck   # clean
+npm run lint        # clean
+npm run test        # 42 passing
+npm run build       # succeeds
 ```
 
-The `lenisRef` type in `src/App.tsx` currently only declares `scrollTo`. It needs to
-expose `raf` and `on` as well — either widen the type or type it as `Lenis | null`
-directly and import the type from `lenis`:
-
-```ts
-import type { Lenis } from 'lenis'
-const lenisRef = useRef<Lenis | null>(null)
-```
-
-`ReactLenis`'s `ref` callback yields the component instance, whose `.lenis` property is
-the actual `Lenis` instance. Confirm that shape against the installed types before
-relying on it.
-
-**Acceptance:** wheel, trackpad, keyboard (space / arrows / page up-down) and touch all
-scroll the page smoothly, and the 3D camera tracks the scroll.
-
-### 1.2 `prefers-reduced-motion` is only half wired
-
-`sceneState.reducedMotion` is set from `useReducedMotion()` and read by `CameraRig`,
-`Starfield` and `Vehicle`, but Lenis still initialises its smoothing machinery and the
-React Bits components animate unconditionally. When reducing motion:
-
-- Lenis `duration` is already `0.01`, but `smoothWheel` also needs checking against the
-  live option rather than only at mount.
-- `SplitText`, `ScrollFloat`, `AnimatedContent`, `CountUp` and `DecryptedText` should
-  be skipped or collapsed to their final state. Consider a `MotionConfig` wrapper, or
-  gate the animated props at each call site.
-- `ScrollTrigger` scrubs should fall back to discrete, non-animated states.
-
-**Acceptance:** with the OS setting on, nothing translates, fades, drifts or counts up;
-all copy is readable and every part is still reachable from the nav rail.
-
 ---
 
-## 2. Phase 3 — verify the 3D scene
+## 1. What still needs a human in a browser
 
-Code exists in `src/three/` but has never executed. Expect runtime breakage here first.
-
-| File | Risk to check |
-|---|---|
-| `Scene.tsx` | `<Canvas>` `camera` prop, `color attach="background"`, `dpr` clamp. Confirm the WebGL context actually initialises. |
-| `Lighting.tsx` | `<Environment>` with `<Lightformer>` children renders a procedural env with no CDN fetch. Verify it does not request an HDR and does not throw. |
-| `Lighting.tsx` | `@react-three/postprocessing` v3 API: `EffectComposer`, `Bloom`, `Vignette` prop names and `enableNormalPass` removal. Most likely source of a runtime error. |
-| `Starfield.tsx` | `points` + `BufferGeometry` with vertex colours; `AdditiveBlending`, `depthWrite={false}`. Confirm the field is visible and not washed out. |
-| `Vehicle.tsx` | `useGLTF` resolves `/models/SaturnV-parts.glb`; the `part_*` node names match the eight parts written by `prepare-model.mjs`. |
-| `CameraRig.tsx` | Initial camera position must roughly match the first `sampleCamera` keyframe or the first frame will jump. |
-
-Model-load failure currently has no boundary. `WebGLBoundary` catches render errors, but
-a failed `useGLTF` fetch inside `<Suspense>` will reject past it. Add an error boundary
-around `<Vehicle />` specifically, or an `onError` on the loader.
-
-**Acceptance:** first frame renders the vehicle from above; the camera arcs to a
-three-quarter view on scroll; no console errors or unhandled rejections.
-
----
-
-## 3. Phase 4 — scroll orchestration tuning
-
-`src/lib/scroll-state.ts` and `src/lib/camera.ts` are written. Remaining:
-
-- `indexForProgress` in `src/App.tsx` maps progress to an active index using
-  `TOTAL_SECTIONS = SCROLL_PART_ORDER.length + 2` (10). Confirm the maths lines up with the
-  actual DOM: hero + 8 part sections + outro, each `h-screen`. If section heights ever
-  differ, the mapping silently drifts and the wrong part highlights.
-- `sceneState.reveal` is read by `Vehicle.tsx` but **nothing ever writes it**. Compute it
-  per-frame from `sceneState.progress` (ramp up over the middle ~50% of a part's section
-  and back down at the edges), or add labelled tweens to the scrubbed timeline. Until then
-  the exploded view never animates.
-- `sceneState.velocity` is read by `Starfield.tsx` and **nothing writes it**. Set it in
-  the `ScrollTrigger` `onUpdate` via `self.getVelocity()`. The parallax will be static
-  until this is done.
-- `PartSection` receives `active` but only uses it to set `pointer-events`; decide whether
-  inactive panels should also fade, and if so do it in CSS so it does not fight
-  `AnimatedContent`.
-
----
-
-## 4. Phase 5 — UI/UX polish
-
-Structure exists in `src/ui/`. To finish:
-
-- Confirm the panel column placement reads well next to the 3D at 1280px and up; the
-  panels currently sit right on wide screens (`lg:ml-auto`) which may cover the vehicle.
-- `GlassSurface`, `ScrollReveal` and `AnimatedList` are installed but unused. Either use
-  them or remove them; unused vendored components still ship in `src/components/`.
-- Add a mobile nav. `PartNav` is `hidden md:block` and has no small-screen equivalent —
-  `AnimatedList` or the installed shadcn `sheet` are both available.
-- Verify the NASA-red accent stays the only accent, per the chosen direction. Several
-  shadcn components ship default tokens that have not been themed yet, and
-  `src/index.css` defines its own `--color-*` set rather than shadcn's
-  `--primary` / `--background` variables. The two token systems are currently
-  unconnected.
-
----
-
-## 5. Phase 6 — robustness
-
-- Reduced-motion: see 1.2.
-- `WebGLBoundary` renders `FallbackList`. Confirm it triggers by forcing a context loss, and
-  confirm the fallback is reachable when WebGL is unavailable entirely.
-- Add a real "WebGL unavailable" check before mounting `<Canvas>` so the fallback is not
-  gated on a thrown error.
-- Keyboard: the nav rail is real buttons, verify tab order and that `aria-current` tracks
-  the active part. Confirm the skip link in `src/App.tsx` works.
-- Add an `IntersectionObserver`-driven pause so R3F stops rendering when the canvas is not
-  visible. Not critical while the canvas is fixed and always on screen.
-
----
-
-## 6. Phase 7 — verification
-
-```bash
-npm run typecheck    # currently clean
-npm run lint         # currently clean
-npm run build        # currently succeeds
-npm run dev
-```
-
-Manual checks, none of which have been performed yet:
+Everything above is static analysis, unit tests, and a successful bundle. None of it
+observes a WebGL context. These checks are unperformed and are the real remaining work:
 
 1. First frame loads and the vehicle is visible from above.
-2. Scroll is smooth with no jitter or double-rAF stutter.
+2. Scroll is smooth, with no jitter and no double-rAF stutter.
 3. Each of the eight parts separates, dims the others, and shows its panel.
-4. Nav rail jumps to the right section.
+4. The nav rail jumps to the right section.
 5. Reduced motion produces no animation.
-6. Mobile viewport (375px) — panels are readable, nav is reachable.
+6. Mobile viewport (375px) — panels readable, drawer reachable and correct.
 7. DevTools FPS at 55+ on a mid-range laptop.
 8. Production `npm run build && npm run preview`.
 
-Known build output: three.js is ~747 kB (192 kB gzipped) and the r3f chunk ~616 kB
-(191 kB gzipped). Vite warns about chunks over 500 kB. Consider Draco compression or
-`EXT_meshopt_compression` on the model, and lazy-loading the `Canvas` so the DOM copy
-paints before WebGL initialises.
+If these need to be automated rather than checked by hand, adding Playwright is the only
+route — the project has no browser tooling today.
+
+Just run `npm run dev` and go through them in order.
+
+To watch the scene state live while checking 2,  3 and 4, add this line temporarily to
+`src/App.tsx` inside the existing `useEffect` that copies `reducedMotion`:
+
+```ts
+;(window as unknown as { sceneState: typeof sceneState }).sceneState = sceneState
+```
+
+That object is the single source of truth the canvas reads every frame, so `progress`,
+`activeIndex`, `reveal` and `velocity` are all inspectable from the console. Remove the
+line afterwards — the state is deliberately not exposed in the shipped build.
 
 ---
 
-## 7. Environment constraints
+## 2. What changed in this pass
 
-These are properties of the machine, not the project. Do not "fix" them by reverting
-dependency choices without reading this first.
+### The scroll blocker (was: the page did not scroll at all)
 
-**Node is v21.6.2 — not an LTS release.** Two consequences:
+`src/App.tsx` configured Lenis with `autoRaf: false` but nothing ever called
+`lenis.raf()`, so the page could not be scrolled. Fixed by driving Lenis from GSAP's
+ticker inside the existing `gsap.context(...)`, so it is torn down with everything else:
 
-- `node:util`'s `styleText` was added in Node 21.7. Vite 8 (rolldown) requires it and
-  **cannot run here**. The project is therefore pinned to `vite@6.4.3` (Rollup-based) and
-  `@vitejs/plugin-react@4.7.0`.
-- `eslint@10` and `typescript-eslint@8.71` also reject Node 21.6.2. Pinned to
-  `eslint@9.39.5`.
-- `typescript@7.0.2` is the current latest but `typescript-eslint@8.71.0` peers
-  `typescript >=4.8.4 <6.1.0`, so the project is pinned to `typescript@~5.9.3`.
+```ts
+const lenis = lenisRef.current?.lenis
+const update = (time: number) => lenis?.raf(time * 1000)
+gsap.ticker.add(update)
+gsap.ticker.lagSmoothing(0)
+const unsubscribe = lenis?.on('scroll', ScrollTrigger.update)
+```
 
-If Node is ever upgraded to 22 LTS or 24 LTS, these pins can be revisited and Vite 8
-adopted.
+`lenisRef` is now typed `LenisRef` from `lenis/react`, which replaces an
+`as unknown as` cast. `LenisRef` is `{ wrapper, content, lenis?: Lenis }`, so the real
+instance is `.lenis` — this was verified against the installed types, not assumed.
+`lenis.on('scroll', …)` returns its own unsubscribe function, which is used in cleanup
+rather than a manual `off` call.
 
-**The parent folder name contains `&`:** `S004_AARYAN_RAORANE_AI&DS_SY`.
+No `scrollerProxy` is needed: `root` mode makes Lenis wrap the native window scroll, so
+ScrollTrigger keeps working off the real scroll position.
 
-`&` is a command separator in `cmd.exe`, which breaks every npm-generated `.bin` shim —
-`npx vite` and `npm run dev` both fail with a truncated path. Two workarounds are already
-in place:
+### Two scene-state fields that were read but never written
 
-- All `package.json` scripts invoke tools via **relative paths**
-  (`node ./node_modules/vite/bin/vite.js`), which avoids the absolute path entirely.
-- `shadcn` is installed locally and exposed as `npm run shadcn --` for the same reason.
+`sceneState.reveal` (`Vehicle.tsx`) and `sceneState.velocity` (`Starfield.tsx`) had
+readers and **no writers at all**, so the exploded view and the parallax layers were
+permanently static. Both are now written in the ScrollTrigger `onUpdate`.
 
-Do not reintroduce bare binary names (`vite`, `tsc`, `eslint`, `shadcn`) into scripts.
+The mapping logic lives in a new `src/lib/scroll-track.ts` rather than inline in
+`App.tsx`, because three things now need to agree on where the section boundaries are:
+the nav highlight, the exploded view, and the tests.
 
-**21st.dev was excluded** because retrieving component code requires a paid membership;
-only `search` is free. Everything installed came from React Bits and shadcn/ui.
+`sceneState.ready` was declared, never written and never read. Removed.
+
+### Scroll-to-section mapping
+
+`revealForProgress` is a **symmetric window** over each part's own section — assembled on
+arrival, fully apart while the panel is centred, reassembled before the next part takes
+over. Symmetry is load-bearing, not cosmetic: the active part changes exactly on a
+section boundary, so an asymmetric ramp would leave the stack fully exploded right up to
+that boundary and then rearrange the whole vehicle in a single frame. A test asserts the
+value is continuous across every boundary.
+
+`indexForProgress` and friends clamp out-of-range progress. `velocityFor` clips
+ScrollTrigger's raw px/s to ±8000, because a nav-rail jump is reported as an enormous
+instantaneous velocity and `Starfield`'s `0.0006` parallax multiplier is tuned for hand
+scrolling.
+
+### Model-load failure is now handled
+
+The previous `WebGLBoundary` sat *outside* `<Canvas>` and therefore could not catch a
+failed `useGLTF`: R3F renders the scene into its own reconciler root, so errors in the
+scene do not propagate to boundaries in the surrounding tree. A model-fetch failure would
+have left a blank canvas, an unhandled rejection, and a boot overlay that never lifted.
+
+- New `src/three/SceneBoundary.tsx` sits *inside* the canvas, directly above the scene
+  contents, so it is in the same React root as whatever throws. It reports up via
+  `onError` and `App` swaps in `FallbackList`.
+- `FallbackList` is exported from `WebGLBoundary.tsx` so it can also be rendered
+  directly, without first trying and failing to create a context.
+- New `src/lib/webgl.ts` probes for a WebGL2 context once at mount. A browser with no
+  WebGL now renders the text breakdown immediately rather than via a caught error.
+- The boot overlay is removed when the model loads, when the scene fails, *or* when WebGL
+  is unavailable.
+
+### Reduced motion
+
+`index.css` only collapses CSS transitions and animations. Every React Bits component
+animates from JavaScript, so the preference never reached them — `SplitText` still flew
+in, `DecryptedText` still scrambled, `CountUp` still counted.
+
+`src/ui/motion.tsx` adds reduced-motion-aware wrappers (`SplitHeading`, `Reveal`,
+`FloatIn`, `Tally`, `Scramble`) that render the component's *finished* state as plain
+markup when the preference is set. The vendored files are not edited, so they stay
+replaceable by the shadcn CLI. `App` supplies the preference through a context provider.
+
+`Tally` formats with the same `Intl.NumberFormat` rules `CountUp` uses internally, so
+"2,970" stays grouped and "34" stays whole — static and animated versions do not disagree.
+
+`Lenis`'s `smoothWheel`/`duration` were already re-evaluated on preference change, because
+the options object is rebuilt on re-render. `Vehicle` and `CameraRig` already gated on
+`sceneState.reducedMotion`. No changes needed in those three places.
+
+### Tokens, mobile nav, dead code
+
+- shadcn's semantic tokens (`--color-background`, `--color-popover`, `--color-primary`,
+  `--color-border`, `--color-ring`, …) are now mapped onto the existing palette via
+  `@theme inline`, so vendored components render in the project's colours instead of
+  shadcn's light defaults. No existing utility class changed.
+  **`--color-muted` is deliberately *not* remapped**: this project uses it as a text
+  colour (`text-muted`, seven call sites) while shadcn expects a surface. The one
+  vendored component that wants a muted background overrides it at the call site.
+- New `PartNavMobile` — a Radix dialog drawer, because `PartNav` is `hidden md:block` and
+  small screens previously had no navigation at all. Radix rather than a hand-rolled
+  disclosure, for focus trapping, Escape handling and dialog semantics.
+- Deleted 7 unused vendored components: `GlassSurface`, `ScrollReveal`, `AnimatedList`,
+  and shadcn's `badge`, `card`, `scroll-area`, `separator`. `sheet` and `button` were
+  **kept** because `sheet.tsx` imports `button.tsx`, and both are now genuinely used.
+- Removed 4 orphaned dependencies: `@radix-ui/react-separator`, `-slot`, `-dialog`,
+  `-tooltip`. The components import from the `radix-ui` umbrella package; the individual
+  packages were leftovers and remain only as its transitive dependencies.
+- `PartSection` fades inactive panels in CSS (opacity/visibility on the wrapper) so it
+  does not fight the entrance animation on the contents, which owns transform only. Its
+  hardcoded `/ 08` counter is now derived from `SCROLL_PART_ORDER.length`.
+
+### Bundle
+
+Both heavy things are now split out of the critical path:
+
+| Chunk | Size | gzip |
+|---|---|---|
+| `index` (app, content, all copy) | 236 kB | 82 kB |
+| `PartNavMobile` (deferred) | 78 kB | 28 kB |
+| `Scene` (deferred) | 6 kB | 3 kB |
+| `gsap` | 80 kB | 32 kB |
+| `three` (on demand) | 747 kB | 192 kB |
+| `r3f` (on demand) | 608 kB | 188 kB |
+| `css` | 40 kB | 8 kB |
+
+The document's copy paints before WebGL initialises. `three` and `r3f` are unchanged and
+still exceed Vite's 500 kB warning; the GLB is still uncompressed. Neither was in scope
+here — see section 5.
 
 ---
 
-## 8. Model pipeline
+## 3. Tests
 
-The NASA model is split by a script, so geometry and copy cannot drift apart. Re-run it
-after changing anything in `scripts/prepare-model.mjs`:
+`npm run test` — 42 tests over the logic that can be verified without a browser. This is
+the only automated correctness gate beyond typecheck and lint.
+
+| File | Covers |
+|---|---|
+| `src/lib/scroll-track.test.ts` | section boundaries, part mapping, reveal bell shape and boundary continuity, velocity clipping |
+| `src/data/parts.test.ts` | generated geometry integrity, the centring offset, camera keyframe interpolation and clamping, scroll-state pub/sub |
+| `src/lib/webgl.test.ts` | the probe returns false rather than throwing with no document |
+
+The centring-offset tests are the important ones. `Vehicle.tsx` translates the model by
+`VEHICLE_Y_OFFSET` while `PART_CENTER` bakes the same offset into the camera and explode
+targets. If it were applied twice or omitted from one of the two, every camera keyframe
+would aim at empty space — with no type error and no console warning, only a wrong
+picture. That class of bug is now pinned by test.
+
+House style for these files: explicit `import { describe, it, expect } from 'vitest'` with
+no globals, so `tsconfig.app.json` covers them and no config surgery is needed.
+
+---
+
+## 4. Environment — the previous notes here were wrong
+
+**Node is v22.18.0, not v21.6.2.** The old constraints below no longer apply: Node 21.7
+added `node:util`'s `styleText`, which Vite 8 (rolldown) requires, and this machine is
+well past that. `eslint@10` and `typescript@8` would also install cleanly.
+
+The existing pins were deliberately left alone — `vite@6`, `eslint@9`, `typescript@5.9`
+all work correctly here, and bumping a major version is not a change worth making
+without a reason. Revisit only if something actually requires it.
+
+**npm 11.5.2 has a `#loadPeerSet` crash.** Installing `vitest@4` fails with
+`Cannot read properties of null (reading 'edgesOut')` — an npm bug in peer-set resolution,
+not a project problem. Workaround:
 
 ```bash
-npm run model:fetch    # downloads the NASA source GLB (needed once after clone)
+npm install <pkg> --legacy-peer-deps
+```
+
+`vitest@3` installs without the flag if that is ever simpler. Note that
+`--legacy-peer-deps` skips auto-install-peers, which **removed `postprocessing`**, a
+required peer of `@react-three/postprocessing`, and broke the production build with
+`Rollup failed to resolve import "postprocessing"`. It is now declared explicitly as a
+direct dependency, which is where it belonged.
+
+**The parent folder name contains `&`** (`S004_AARYAN_RAORANE_AI&DS_SY`). `&` is a
+command separator in `cmd.exe`, which truncates every npm-generated `.bin` shim. All
+`package.json` scripts invoke tools via relative paths
+(`node ./node_modules/vite/bin/vite.js`) to avoid this. **Do not reintroduce bare binary
+names** (`vite`, `tsc`, `eslint`, `shadcn`, `vitest`) into scripts.
+
+**21st.dev was excluded** because retrieving component code requires a paid membership;
+everything came from React Bits and shadcn/ui. `tw-animate-css` was added because shadcn
+components' `animate-in` / `slide-in-from-*` classes are silent no-ops without it.
+
+---
+
+## 5. Deliberately not done
+
+- **GLB compression.** `gltf-transform/extensions` is installed and `EXT_meshopt_compression`
+  is unused. Worth ~1 MB but it touches `prepare-model.mjs`, which currently self-verifies
+  on every run — worth doing deliberately, not as a side effect.
+- **Draco.** Same reasoning, with a runtime decoder cost to weigh.
+- **Canvas visibility pause.** The canvas is `position: fixed` and always on screen, so an
+  `IntersectionObserver` would never fire. Revisit only if the layout changes.
+- **Panel occlusion at ≥1280px.** `PartSection` uses `lg:ml-auto`, so panels sit right on
+  wide screens and may cover the vehicle. This needs a visual check — see section 1.
+
+---
+
+## 6. Model pipeline
+
+Unchanged. The NASA model is split by script so geometry and copy cannot drift apart.
+Re-run after changing anything in `scripts/prepare-model.mjs`:
+
+```bash
+npm run model:fetch    # downloads the NASA source GLB (once after clone)
 npm run model:inspect  # structure, materials, textures, primitive inventory
 npm run model:profile  # radius-vs-height, used to find stage shoulders
 npm run model:prepare  # writes public/models/SaturnV-parts.glb + src/data/generated/geometry.json
 ```
 
-`prepare-model.mjs` self-verifies on every run: it reads the output back and fails with a
-non-zero exit if the part count, the base/tip heights, or any bbox is wrong.
+`prepare-model.mjs` self-verifies on every run: it reads the output back and exits
+non-zero if the part count, the base/tip heights, or any bbox is wrong.
 
-The source GLB lives at `assets/source/SaturnV-raw.glb`. It is **gitignored** — it is a
-public-domain third-party download, so it is re-fetched with `npm run model:fetch` rather
-than stored in history. It is kept outside `public/` so it is also not copied into the
-production build.
+`assets/source/SaturnV-raw.glb` is gitignored — it is a public-domain third-party
+download, so it is re-fetched rather than stored in history, and kept outside `public/`
+so it is not copied into the build.
 
 The *generated* `public/models/SaturnV-parts.glb` (1.2 MB) and
-`src/data/generated/geometry.json` **are committed on purpose**: a fresh clone can then run
-`npm run dev` and `npm run build` with no network access and no extra steps. If you would
-rather keep generated artifacts out of git, add both to `.gitignore` and add
-`npm run model:fetch && npm run model:prepare` to your pre-build step — just be aware
-`npm run typecheck` will fail on a fresh clone if `geometry.json` is absent, because
-`src/data/parts.ts` imports it.
-
-Current split, for reference:
+`src/data/generated/geometry.json` are committed on purpose, so a fresh clone can run
+`npm run dev` and `npm run build` offline. `geometry.json` must stay committed:
+`src/data/parts.ts` imports it, so `npm run typecheck` fails without it.
 
 | Part | Band (m) | Triangles | Width |
 |---|---|---|---|
@@ -248,48 +278,61 @@ Current split, for reference:
 | CM | 99.2–102.7 | 80 | 3.8 m |
 | LES | 102.7–110.6 | 300 | 0.9 m |
 
-Total 34,814 triangles, matching NASA's published polygon count.
-
-Note that the model is a **stylised low-poly** Saturn V with default Maya names
-(`pCylinder1`, `polySurface1`, `group7`). Part boundaries are therefore derived by
-assigning each triangle to a band by centroid height, using real stage proportions as the
-edges. On a coarse mesh some triangles straddle a boundary, so part extents overshoot by
-roughly half a metre. The measured widths in the table are wider than the published
-figures for the same reason. Copy quotes published figures and labels them as nominal;
-`PART_TRIANGLES` shows what the mesh actually contains.
+Total 34,814 triangles, matching NASA's published count. The model is a stylised low-poly
+Saturn V with default Maya names, so part boundaries come from assigning each triangle to
+a band by centroid height using real stage proportions as the edges. On a coarse mesh some
+triangles straddle a boundary, so extents overshoot by roughly half a metre — the widths
+above are wider than the published figures for that reason. Copy quotes published figures
+and labels them nominal; `PART_TRIANGLES` shows what the mesh actually contains.
 
 ---
 
-## 9. File map
+## 7. File map
 
 ```
 saturnv-3d/
 ├── assets/source/SaturnV-raw.glb     NASA source model, not shipped
 ├── public/models/SaturnV-parts.glb    generated, 8 part nodes
-├── scripts/
-│   ├── inspect-model.mjs              structure + primitive inventory
-│   ├── analyze-model.mjs              radius-vs-height profile
-│   └── prepare-model.mjs              splits + verifies + emits geometry.json
+├── scripts/                           fetch / inspect / profile / prepare
 └── src/
-    ├── App.tsx                        Lenis root, ScrollTrigger, scroll track
+    ├── App.tsx                        Lenis root, ticker bridge, scroll track
     ├── data/
-    │   ├── parts.ts                    copy, specs, part order
+    │   ├── parts.ts                    copy, specs, part order, geometry accessors
+    │   ├── parts.test.ts
     │   └── generated/geometry.json     written by prepare-model.mjs
     ├── lib/
     │   ├── scroll-state.ts             mutable per-frame state + pub/sub
-    │   └── camera.ts                   generated keyframes + interpolation
+    │   ├── scroll-track.ts             progress → section / index / reveal / velocity
+    │   ├── scroll-track.test.ts
+    │   ├── camera.ts                   generated keyframes + interpolation
+    │   ├── webgl.ts                    capability probe
+    │   ├── webgl.test.ts
+    │   └── utils.ts                    cn() helper
+    ├── hooks/useReducedMotion.ts       live matchMedia
     ├── three/
     │   ├── Scene.tsx                   <Canvas> wrapper
+    │   ├── SceneBoundary.tsx           error boundary inside the R3F root
     │   ├── Vehicle.tsx                 per-part material clones, explode + dim
     │   ├── Starfield.tsx               3 parallax layers
     │   ├── CameraRig.tsx               applies camera path each frame
     │   └── Lighting.tsx                lights, procedural env, postprocessing
-    ├── ui/                             Hero, PartSection, PartNav, StatsOutro,
-    │                                   Grain, WebGLBoundary
-    ├── components/                     vendored React Bits (see eslint.config.js)
-    └── components/ui/                  vendored shadcn/ui
+    ├── ui/                             our components
+    │   ├── Hero, PartSection, PartNav, PartNavMobile, StatsOutro
+    │   ├── Grain, WebGLBoundary
+    │   └── motion.tsx                  reduced-motion wrappers + provider
+    └── components/                     vendored React Bits / shadcn (see eslint.config.js)
 ```
 
 `src/components/*.tsx` is third-party source installed by the shadcn CLI, not ours.
-`eslint.config.js` carries scoped rule exemptions for it, for `src/components/ui/`, and
-for `src/three/`. Prefer adding new code to `src/ui/`, `src/lib/` and `src/data/`.
+`eslint.config.js` carries scoped exemptions for `src/components/ui/` and `src/three/`.
+Prefer adding new code to `src/ui/`, `src/lib/` and `src/data/`. When a vendored component
+needs project-specific behaviour, wrap it rather than patching the file — `motion.tsx`
+and `PartNavMobile` both do this.
+
+### Conventions
+
+No semicolons, single quotes, 2-space indent, ~100-column width, trailing commas. Named
+exports everywhere except `App`. Comments explain *why*, not *what*, and cite evidence
+where there is any. Per-frame code allocates nothing: scratch vectors are module-level
+singletons and `sampleCamera` writes into vectors the caller supplies. All motion is
+frame-rate independent via `Math.min(delta, 0.1)` and exponential smoothing.

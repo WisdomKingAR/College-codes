@@ -33,7 +33,14 @@ export class WebGLBoundary extends Component<Props, State> {
   }
 }
 
-function FallbackList() {
+/**
+ * The no-3D version of the page.
+ *
+ * Exported because WebGL can also fail before React is involved: a browser with
+ * WebGL unavailable needs this rendered in place of the canvas rather than
+ * reached by way of a caught error.
+ */
+export function FallbackList() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-24">
       <h1 className="text-3xl font-semibold tracking-tight text-chalk sm:text-4xl">

@@ -21,8 +21,6 @@ export interface SceneState {
   /** Signed scroll velocity, drives the parallax layers. */
   velocity: number
   reducedMotion: boolean
-  /** Set once the model has finished loading. */
-  ready: boolean
 }
 
 export const sceneState: SceneState = {
@@ -32,7 +30,6 @@ export const sceneState: SceneState = {
   cameraT: 0,
   velocity: 0,
   reducedMotion: false,
-  ready: false,
 }
 
 export function activePartId(): PartId | null {

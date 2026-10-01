@@ -68,6 +68,14 @@ Lab 1 creates these tables: `student`, `mentor`, `subject`, `resources`, `study_
 
 The scripts are intended to be run in order in MySQL. The second script depends on the schema created by the first and uses sample data such as mentor, student, subject, test, grade, and skill records.
 
+### Saturn V 3D
+
+`saturnv-3d/` is a standalone web project rather than coursework: a scroll-driven teardown of NASA's Saturn V, built with React, TypeScript, three.js and GSAP. Scrolling runs the camera from the launch escape tower down to the F-1 engines, and each of the eight vehicle sections separates and highlights as it comes into view.
+
+It is independent of everything else in this repository and has its own toolchain and its own `package.json`. See [`saturnv-3d/REMAINING-WORK.md`](saturnv-3d/REMAINING-WORK.md) for its architecture, conventions, model pipeline and current state.
+
+The NASA model is public domain and is processed by a script into eight named `part_*` nodes, so the geometry on screen and the text describing it cannot drift apart.
+
 ## Repository layout
 
 The top level is organized by subject. The tree below lists every tracked learning file; the generated `.ipynb_checkpoints/` folder is intentionally omitted.
@@ -99,8 +107,9 @@ College-codes/
 │   ├── S004_Aaryan_Raorane_Exp1.ipynb
 │   ├── S004_Aaryan_Raorane_Exp2.ipynb
 │   ├── S004_Aaryan_Raorane_Expt3.ipynb
-│   ├── S004_Aaryan_Raorane_Expt4.ipynb
+│   ├── S004_Aaryan_Raorane_Exp4.ipynb
 │   └── S004_Aaryan_Raorane_Expt5.ipynb
+├── saturnv-3d/                     # Standalone scroll-driven 3D project
 └── README.md
 ```
 
@@ -140,6 +149,18 @@ SOURCE DBMS/DBMS_LAB_2_19_AUGUST_2026.sql;
 
 Review the statements before running them on a shared server: the scripts create a database, alter tables, and insert sample data.
 
+### Saturn V 3D
+
+Requires Node 20 or newer.
+
+```bash
+cd saturnv-3d
+npm ci
+npm run dev
+```
+
+The generated model is committed, so no download or extra setup is needed. `npm run typecheck`, `npm run lint`, `npm run test` and `npm run build` are the automated gates; the 3D view itself still needs checking in a browser, and [`saturnv-3d/REMAINING-WORK.md`](saturnv-3d/REMAINING-WORK.md) lists what that involves.
+
 ## Suggested study order
 
 1. Work through the Python lecture notebooks from 01 to 05.
@@ -153,9 +174,11 @@ Review the statements before running them on a shared server: the scripts create
 - This is an educational coursework repository maintained by Aaryan Raorane (S004).
 - Filenames and dates reflect the classwork and lab submission organization.
 - The repository has not been presented as a single tested build; validate individual notebooks, C programs, and SQL statements in the environment where you plan to use them.
+- `saturnv-3d/` is unrelated to the coursework and has its own independent toolchain.
 
 ## Links
 
 - [Python notebooks](PYTHON/)
 - [Data structure programs](DATA%20STRUCTURE/)
 - [DBMS scripts and lab documents](DBMS/)
+- [Saturn V 3D](saturnv-3d/)

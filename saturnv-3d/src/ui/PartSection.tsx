@@ -1,6 +1,6 @@
-import AnimatedContent from '@/components/AnimatedContent'
+import { PART_BY_ID, PART_TRIANGLES, SCROLL_PART_ORDER, type PartId } from '@/data/parts'
 import SpotlightCard from '@/components/SpotlightCard'
-import { PART_BY_ID, PART_TRIANGLES, type PartId } from '@/data/parts'
+import { Reveal } from '@/ui/motion'
 
 /**
  * One full-height section per part.
@@ -27,15 +27,15 @@ export function PartSection({
       aria-labelledby={`part-${id}-heading`}
       className="relative flex h-screen items-center px-6 sm:px-10 lg:px-16"
     >
-      <div className="w-full max-w-md lg:ml-auto">
-        <AnimatedContent
-          distance={44}
-          direction="vertical"
-          reverse={false}
-          duration={0.7}
-          ease="power3.out"
-          className={active ? '' : 'pointer-events-none'}
-        >
+      <div
+        className={`w-full max-w-md transition-opacity duration-500 lg:ml-auto ${
+          // Fade the inactive panels rather than leaving eight stacked cards at
+          // full strength. Done on the wrapper in CSS so it cannot fight the
+          // entrance animation on the contents, which owns transform and only.
+          active ? 'opacity-100' : 'opacity-40 lg:opacity-0 lg:pointer-events-none'
+        }`}
+      >
+        <Reveal className={active ? '' : 'pointer-events-none'}>
           <SpotlightCard
             spotlightColor="rgba(252, 61, 33, 0.14)"
             className="rounded-sm border border-edge/70 bg-hull/70 p-7 backdrop-blur-md"
@@ -43,7 +43,7 @@ export function PartSection({
             <div className="flex items-baseline justify-between gap-4">
               <span className="telemetry text-nasa">{part.code}</span>
               <span className="telemetry text-faint">
-                {String(index + 1).padStart(2, '0')} / 08
+                {String(index + 1).padStart(2, '0')} / {String(SCROLL_PART_ORDER.length).padStart(2, '0')}
               </span>
             </div>
 
@@ -69,7 +69,7 @@ export function PartSection({
               {triangles.toLocaleString()} triangles in this section of the model
             </p>
           </SpotlightCard>
-        </AnimatedContent>
+        </Reveal>
       </div>
     </section>
   )

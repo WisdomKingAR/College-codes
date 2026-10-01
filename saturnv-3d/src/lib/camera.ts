@@ -8,7 +8,7 @@
  * costs nothing per frame.
  */
 import { Vector3 } from 'three'
-import { PART_CENTER, PART_GEOMETRY, SCROLL_PART_ORDER } from '@/data/parts'
+import { PART_CENTER, PART_GEOMETRY, SCROLL_PART_ORDER, VEHICLE_HEIGHT_M } from '@/data/parts'
 
 export interface CameraKey {
   progress: number
@@ -27,9 +27,10 @@ function distanceFor(size: number, base: number) {
 function buildKeyframes(): CameraKey[] {
   const keys: CameraKey[] = []
 
-  // The vehicle is recentred on the origin by the model prep step, so the stack
-  // spans roughly -55 to +55 in y.
-  const halfHeight = 55
+  // The scene translates the whole vehicle by -heightM/2, so the stack is
+  // centred on the origin and spans roughly -55 to +55 in y. Derived rather than
+  // hardcoded so a regenerated model cannot leave the opening shots misframed.
+  const halfHeight = VEHICLE_HEIGHT_M / 2
 
   // Act 0 — straight down the length of the vehicle from above.
   keys.push({
