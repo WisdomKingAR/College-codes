@@ -10,7 +10,14 @@
   --color-edge-soft: #131b26;
   --color-chalk: #e8edf5;
   --color-muted: #8b97a8;
-  --color-faint: #5a6675;
+  /* The dimmest text tier still has to be readable: the telemetry labels use it at
+     9-10px, which is normal-size text as far as WCAG is concerned, so this needs
+     4.5:1 against the surfaces it sits on. #5a6675 was 3.47:1 on --color-void and
+     fell further still through the /60-/80 opacity variants, which put several
+     labels under 2.5:1. #7a869b measures 5.5:1 on --color-void and 5.2:1 over the
+     --color-hull/75 card, so those variants are no longer needed to get a
+     recessive tone and have been dropped at the call sites. */
+  --color-faint: #7a869b;
   --color-nasa: #fc3d21;
   --color-nasa-dim: #a82a17;
   --color-flame: #ffb347;
@@ -58,10 +65,15 @@
 }
 
 @layer base {
+  :root {
+    scroll-behavior: auto !important;
+  }
+
   html {
     background-color: var(--color-void);
     color-scheme: dark;
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: auto !important;
   }
 
   body {

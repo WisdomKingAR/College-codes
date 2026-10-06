@@ -18,6 +18,8 @@ export interface SceneState {
   reveal: number
   /** Camera path parameter; lags `progress` slightly for a weighted feel. */
   cameraT: number
+  /** Progress through the hero exit phase (0 = full hero, 1 = hero exited). */
+  heroProgress: number
   /** Signed scroll velocity, drives the parallax layers. */
   velocity: number
   reducedMotion: boolean
@@ -28,6 +30,7 @@ export const sceneState: SceneState = {
   activeIndex: -1,
   reveal: 0,
   cameraT: 0,
+  heroProgress: 0,
   velocity: 0,
   reducedMotion: false,
 }

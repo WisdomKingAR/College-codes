@@ -1,6 +1,16 @@
 import { PARTS, SCROLL_PART_ORDER, type PartId } from '@/data/parts'
 
 /**
+ * Module level: `active` changes at every section boundary, and rebuilding the
+ * label table plus re-searching PARTS on each of those renders produced the same
+ * eight entries every time.
+ */
+const NAV_ITEMS = SCROLL_PART_ORDER.flatMap((id) => {
+  const part = PARTS.find((p) => p.id === id)
+  return part ? [{ id, code: part.code, label: `${part.code} — ${part.name}` }] : []
+})
+
+/**
  * Fixed rail that jumps to a part.
  *
  * Rendered as real buttons so it works with a keyboard and announces the active
@@ -14,23 +24,21 @@ export function PartNav({
   active: PartId | null
   onSelect: (id: PartId) => void
 }) {
-  const label = new Map(PARTS.map((p) => [p.id, `${p.code} — ${p.name}`]))
-
   return (
     <nav
       aria-label="Vehicle sections"
       className="pointer-events-auto fixed top-1/2 right-4 z-30 hidden -translate-y-1/2 md:block"
     >
       <ol className="flex flex-col items-end gap-1">
-        {SCROLL_PART_ORDER.map((id) => {
-          const isActive = id === active
+        {NAV_ITEMS.map((item) => {
+          const isActive = item.id === active
           return (
-            <li key={id}>
+            <li key={item.id}>
               <button
                 type="button"
-                onClick={() => onSelect(id)}
+                onClick={() => onSelect(item.id)}
                 aria-current={isActive ? 'true' : undefined}
-                aria-label={label.get(id)}
+                aria-label={item.label}
                 className="group flex items-center justify-end gap-3 py-1.5 pl-3 text-right"
               >
                 <span
@@ -40,7 +48,7 @@ export function PartNav({
                       : 'text-muted opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
                   }`}
                 >
-                  {PARTS.find((p) => p.id === id)?.code}
+                  {item.code}
                 </span>
                 <span
                   aria-hidden="true"

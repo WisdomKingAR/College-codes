@@ -3,7 +3,7 @@ import { FloatIn, Scramble, Tally } from '@/ui/motion'
 
 export function StatsOutro() {
   return (
-    <section className="relative flex h-screen flex-col items-center justify-center px-6">
+    <section className="relative flex h-[100svh] flex-col items-center justify-center px-6">
       <FloatIn containerClassName="mx-auto max-w-2xl text-center">
         <h2 className="text-[clamp(1.75rem,5vw,3.5rem)] leading-[1.1] font-semibold tracking-tight text-chalk">
           Three stages, one escape tower, and the only machine that has carried people to the Moon
@@ -28,7 +28,7 @@ export function StatsOutro() {
 
       <div className="mt-20 max-w-lg text-center">
         <Scramble text="TRANSMISSION ENDS" className="telemetry text-faint" />
-        <p className="mt-6 text-xs leading-relaxed text-faint/70">
+        <p className="mt-6 text-xs leading-relaxed text-faint">
           Model: <span className="text-muted">Saturn V.glb</span> by NASA / Michael D. Carbajal,
           public domain, via the NASA 3D Resources catalogue. Geometry split into eight animatable
           sections for this page. Figures from the Saturn V flight manual and the Apollo Launch

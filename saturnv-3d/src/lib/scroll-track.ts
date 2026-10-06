@@ -10,8 +10,11 @@
  */
 import { SCROLL_PART_ORDER } from '@/data/parts'
 
-/** hero + one section per part + the outro */
-export const SECTION_COUNT = SCROLL_PART_ORDER.length + 2
+/** Number of full-screen equivalents the hero section occupies in scroll space. */
+export const HERO_SCREENS = 2
+
+/** hero (2 screens) + one section per part + the outro (1 screen) */
+export const SECTION_COUNT = SCROLL_PART_ORDER.length + 1 + HERO_SCREENS
 
 /**
  * Fraction of a section at each end that stays fully assembled, leaving the
@@ -36,7 +39,7 @@ function smoothstep(t: number) {
 }
 
 /**
- * Which section contains `progress`: 0 is the hero, the last is the outro.
+ * Which section contains `progress`: 0 and 1 are the hero, the last is the outro.
  * Clamped at the top because progress of exactly 1 is the end of the last
  * section, not the start of one past it.
  */
@@ -52,8 +55,8 @@ function localForProgress(progress: number): number {
 
 /** Maps overall scroll progress onto the active part, or -1 for hero/outro. */
 export function indexForProgress(progress: number): number {
-  // Section 0 is the hero, so the first part section is section 1.
-  const index = sectionForProgress(progress) - 1
+  // First HERO_SCREENS sections are the hero, so the first part section is section HERO_SCREENS.
+  const index = sectionForProgress(progress) - HERO_SCREENS
   return index < 0 || index >= SCROLL_PART_ORDER.length ? -1 : index
 }
 
@@ -71,7 +74,7 @@ export function indexForProgress(progress: number): number {
  * The hero and outro always report zero, since nothing is active to separate.
  */
 export function revealForProgress(progress: number): number {
-  const index = sectionForProgress(progress) - 1
+  const index = sectionForProgress(progress) - HERO_SCREENS
   if (index < 0 || index >= SCROLL_PART_ORDER.length) return 0
 
   const local = localForProgress(progress)
