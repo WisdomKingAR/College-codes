@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { SCROLL_PART_ORDER } from '@/data/parts'
 import {
+  HERO_SCREENS,
   SECTION_COUNT,
   indexForProgress,
   revealForProgress,
@@ -14,9 +15,9 @@ function progressOfSection(section: number) {
 }
 
 describe('sectionForProgress', () => {
-  it('counts a hero section, one per part, and an outro', () => {
-    expect(SECTION_COUNT).toBe(SCROLL_PART_ORDER.length + 2)
-    expect(SECTION_COUNT).toBe(10)
+  it('counts hero sections, one per part, and an outro', () => {
+    expect(SECTION_COUNT).toBe(SCROLL_PART_ORDER.length + 1 + HERO_SCREENS)
+    expect(SECTION_COUNT).toBe(11)
   })
 
   it('maps the start of the track to the hero', () => {
@@ -46,7 +47,7 @@ describe('sectionForProgress', () => {
 describe('indexForProgress', () => {
   it('reports no active part in the hero', () => {
     expect(indexForProgress(0)).toBe(-1)
-    expect(indexForProgress(progressOfSection(1) - 0.001)).toBe(-1)
+    expect(indexForProgress(progressOfSection(HERO_SCREENS) - 0.001)).toBe(-1)
   })
 
   it('reports no active part in the outro', () => {
@@ -56,7 +57,7 @@ describe('indexForProgress', () => {
 
   it('walks the parts in scroll order, top of the stack downwards', () => {
     SCROLL_PART_ORDER.forEach((id, i) => {
-      const section = i + 1
+      const section = i + HERO_SCREENS
       const mid = progressOfSection(section) + 0.5 / SECTION_COUNT
       expect(indexForProgress(mid)).toBe(i)
       expect(SCROLL_PART_ORDER[indexForProgress(mid)]).toBe(id)
@@ -81,15 +82,15 @@ describe('revealForProgress', () => {
 
   it('peaks in the middle of each part section', () => {
     SCROLL_PART_ORDER.forEach((_id, i) => {
-      const mid = progressOfSection(i + 1) + 0.5 / SECTION_COUNT
+      const mid = progressOfSection(i + HERO_SCREENS) + 0.5 / SECTION_COUNT
       expect(revealForProgress(mid)).toBeCloseTo(1, 5)
     })
   })
 
   it('is still assembled at the start and end of a section', () => {
     SCROLL_PART_ORDER.forEach((_id, i) => {
-      const start = progressOfSection(i + 1) + 0.01 / SECTION_COUNT
-      const end = progressOfSection(i + 1) + 0.99 / SECTION_COUNT
+      const start = progressOfSection(i + HERO_SCREENS) + 0.01 / SECTION_COUNT
+      const end = progressOfSection(i + HERO_SCREENS) + 0.99 / SECTION_COUNT
       expect(revealForProgress(start)).toBe(0)
       expect(revealForProgress(end)).toBe(0)
     })

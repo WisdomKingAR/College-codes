@@ -21,7 +21,8 @@ observes a WebGL context. These checks are unperformed and are the real remainin
 2. Scroll is smooth, with no jitter and no double-rAF stutter.
 3. Each of the eight parts separates, dims the others, and shows its panel.
 4. The nav rail jumps to the right section.
-5. Reduced motion produces no animation.
+5. Reduced motion produces no animation — specifically: hero copy stays put instead of flying
+   out, the camera holds one fixed framing instead of arcing, and nav jumps are instant.
 6. Mobile viewport (375px) — panels readable, drawer reachable and correct.
 7. DevTools FPS at 55+ on a mid-range laptop.
 8. Production `npm run build && npm run preview`.
@@ -126,9 +127,20 @@ replaceable by the shadcn CLI. `App` supplies the preference through a context p
 `Tally` formats with the same `Intl.NumberFormat` rules `CountUp` uses internally, so
 "2,970" stays grouped and "34" stays whole — static and animated versions do not disagree.
 
-`Lenis`'s `smoothWheel`/`duration` were already re-evaluated on preference change, because
-the options object is rebuilt on re-render. `Vehicle` and `CameraRig` already gated on
-`sceneState.reducedMotion`. No changes needed in those three places.
+**A previous version of this file claimed the Lenis, `Vehicle` and `CameraRig` paths already
+needed no changes. That was wrong.** Only the per-frame drift in `CameraRig` and the
+`Vehicle` explode were gated. The three largest motions were not:
+
+| Path | Was | Now |
+|---|---|---|
+| `Hero` exit tween | GSAP scrubbed `y: -70vh` unconditionally | trigger is not created (`Hero.tsx`) |
+| `CameraRig` | sampled the scroll-driven path and lerped toward it every frame; only `idleDrift` was gated | samples the path's *final* parameter and copies it in — no lerp, no drift |
+| Lenis `smoothWheel` | hardcoded `true` | `!reducedMotion` |
+
+The camera holds the framing the journey ends on rather than `t = 0`: the opening shot looks
+straight down the length of the vehicle, which reads as a thin line, whereas the arrived shot
+is the legible three-quarter view. Panels still change and the nav still jumps, so the page
+still does its job — it just stops moving the viewer.
 
 ### Tokens, mobile nav, dead code
 
@@ -142,9 +154,10 @@ the options object is rebuilt on re-render. `Vehicle` and `CameraRig` already ga
 - New `PartNavMobile` — a Radix dialog drawer, because `PartNav` is `hidden md:block` and
   small screens previously had no navigation at all. Radix rather than a hand-rolled
   disclosure, for focus trapping, Escape handling and dialog semantics.
-- Deleted 7 unused vendored components: `GlassSurface`, `ScrollReveal`, `AnimatedList`,
-  and shadcn's `badge`, `card`, `scroll-area`, `separator`. `sheet` and `button` were
+- Deleted 8 unused vendored components: `GlassSurface`, `ScrollReveal`, `AnimatedList`,
+  `Noise`, and shadcn's `badge`, `card`, `scroll-area`, `separator`. `sheet` and `button` were
   **kept** because `sheet.tsx` imports `button.tsx`, and both are now genuinely used.
+  (`Noise` became unused later in the audit pass — see above.)
 - Removed 4 orphaned dependencies: `@radix-ui/react-separator`, `-slot`, `-dialog`,
   `-tooltip`. The components import from the `radix-ui` umbrella package; the individual
   packages were leftovers and remain only as its transitive dependencies.
@@ -152,19 +165,70 @@ the options object is rebuilt on re-render. `Vehicle` and `CameraRig` already ga
   does not fight the entrance animation on the contents, which owns transform only. Its
   hardcoded `/ 08` counter is now derived from `SCROLL_PART_ORDER.length`.
 
+### UI/UX audit pass
+
+Reviewed against the repo-local `ui-ux-pro-max` guidelines. Six real defects, all fixed.
+
+**The grain overlay was never drawing, and was costing a full rAF loop to not draw it.**
+`Grain` called the vendored `Noise` with `patternRefreshInterval={0}` to get a "static"
+overlay. `Noise`'s loop tests `frame % patternRefreshInterval === 0`, so passing `0` makes
+that `NaN === 0` — false on every frame, forever. `drawGrain()` never ran, so the canvas was
+blank; meanwhile `Noise` unconditionally re-armed `requestAnimationFrame`, so an idle loop
+scheduled itself for the life of the page. The comment describing it as costing nothing per
+frame described an outcome the code could not produce. Replaced with an encoded SVG
+`feTurbulence` background on a `fixed inset-0` div: same texture, no JS, no loop. The
+now-unreferenced `src/components/Noise.tsx` is deleted (8 unused vendored components now).
+
+**`--color-faint` failed WCAG AA.** `#5a6675` is 3.47:1 on `--color-void`, and the
+`/60`, `/70` and `/80` opacity variants at four call sites pushed several labels under
+2.5:1. These are 9–11px telemetry labels, which AA treats as normal-size text needing
+4.5:1. Now `#7a869b` — 5.5:1 on the void, 5.2:1 over the `--color-hull/75` card — and the
+opacity variants are dropped, with hierarchy carried by size and weight instead. The `•`
+separator moved off `--color-edge` (1.3:1) to `--color-muted`, and the red eyebrow labels
+lost their `/80`.
+
+**Sections were sized in `100vh`, which is not the viewport on mobile.** `h-screen` was
+wrong for a scroll track on both counts: it is the largest viewport height, so panels
+overflowed behind the URL bar. Every track unit is now `svh`, so all eleven stay exactly
+equal regardless of browser chrome — which is what `SECTION_COUNT`'s arithmetic assumes. The
+canvas wrapper dropped `h-screen` entirely and relies on `inset-0`, so it tracks the visual
+viewport exactly and `ResizeObserver` handles the rest.
+
+**ScrollTriggers were built from `window.innerHeight` while the element they scrub was sized
+in `svh`.** The two can differ by more than 100px on mobile, so the hero exit and the camera
+arc drifted against the section they were attached to. Both triggers now measure
+`document.getElementById('top').offsetHeight` inside their `start`/`end` functions, so
+`ScrollTrigger.refresh()` re-reads them.
+
+**The skip link was an `href="#fragment"` and fought Lenis.** Lenis owns the scroll position,
+so a native fragment jump left its internal target stale and the page snapped back on the
+next wheel event; it also ignored the reduced-motion preference. It is now a `button` calling
+the same `scrollToPart` the nav uses, which also fixed that function: it measured
+`section.offsetTop`, which resolves against `.scroll-track` rather than the document and was
+only correct because every sibling above the track happened to be `fixed`. Now
+`getBoundingClientRect().top + window.scrollY`.
+
+**The boot overlay could never lift if the deferred chunk never resolved.** `ready` and
+`sceneFailed` both come from the lazy `Scene` chunk, so a chunk that fails to load left all
+three removal conditions false and the overlay sitting over readable copy. There is now a 6s
+backstop.
+
+Also hoisted `PartNav`'s label table to module scope — it rebuilt a `Map` and re-ran a
+`PARTS.find` on every active-part change, for eight entries whose values never change.
+
 ### Bundle
 
 Both heavy things are now split out of the critical path:
 
 | Chunk | Size | gzip |
 |---|---|---|
-| `index` (app, content, all copy) | 236 kB | 82 kB |
+| `index` (app, content, all copy) | 237 kB | 83 kB |
 | `PartNavMobile` (deferred) | 78 kB | 28 kB |
-| `Scene` (deferred) | 6 kB | 3 kB |
+| `Scene` (deferred) | 6.5 kB | 3 kB |
 | `gsap` | 80 kB | 32 kB |
 | `three` (on demand) | 747 kB | 192 kB |
 | `r3f` (on demand) | 608 kB | 188 kB |
-| `css` | 40 kB | 8 kB |
+| `css` | 45 kB | 9 kB |
 
 The document's copy paints before WebGL initialises. `three` and `r3f` are unchanged and
 still exceed Vite's 500 kB warning; the GLB is still uncompressed. Neither was in scope

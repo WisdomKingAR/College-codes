@@ -20,56 +20,85 @@ export function PartSection({
 }) {
   const part = PART_BY_ID[id]
   const triangles = PART_TRIANGLES[id]
+  const totalParts = SCROLL_PART_ORDER.length
+  const stepNumber = String(index + 1).padStart(2, '0')
 
   return (
     <section
       id={`part-${id}`}
       aria-labelledby={`part-${id}-heading`}
-      className="relative flex h-screen items-center px-6 sm:px-10 lg:px-16"
+      className="relative flex h-[100svh] items-center px-4 sm:px-8 lg:px-16"
     >
       <div
-        className={`w-full max-w-md transition-opacity duration-500 lg:ml-auto ${
+        className={`flex items-center gap-4 sm:gap-6 w-full max-w-xl transition-all duration-500 ${
           // Fade the inactive panels rather than leaving eight stacked cards at
           // full strength. Done on the wrapper in CSS so it cannot fight the
-          // entrance animation on the contents, which owns transform and only.
-          active ? 'opacity-100' : 'opacity-40 lg:opacity-0 lg:pointer-events-none'
+          // entrance animation on the contents.
+          active ? 'opacity-100 translate-x-0' : 'opacity-40 lg:opacity-0 lg:-translate-x-4 lg:pointer-events-none'
         }`}
       >
-        <Reveal className={active ? '' : 'pointer-events-none'}>
-          <SpotlightCard
-            spotlightColor="rgba(252, 61, 33, 0.14)"
-            className="rounded-sm border border-edge/70 bg-hull/70 p-7 backdrop-blur-md"
-          >
-            <div className="flex items-baseline justify-between gap-4">
-              <span className="telemetry text-nasa">{part.code}</span>
-              <span className="telemetry text-faint">
-                {String(index + 1).padStart(2, '0')} / {String(SCROLL_PART_ORDER.length).padStart(2, '0')}
-              </span>
-            </div>
+        {/* Left Telemetry HUD Rail */}
+        <div
+          className="hidden sm:flex flex-col items-center self-stretch justify-between py-2 text-faint select-none"
+          aria-hidden="true"
+        >
+          <span className="telemetry text-nasa font-mono text-[10px] tracking-widest">{stepNumber}</span>
+          <div className="w-px flex-1 my-3 bg-gradient-to-b from-nasa/60 via-edge to-edge/20" />
+          <span className="telemetry rotate-180 [writing-mode:vertical-rl] text-[9px] tracking-widest text-faint">
+            {part.code}
+          </span>
+        </div>
 
-            <h2
-              id={`part-${id}-heading`}
-              className="mt-3 text-3xl leading-tight font-semibold tracking-tight text-chalk sm:text-4xl"
+        {/* Main Information Card */}
+        <div className="flex-1 min-w-0">
+          <Reveal className={active ? '' : 'pointer-events-none'}>
+            <SpotlightCard
+              spotlightColor="rgba(252, 61, 33, 0.14)"
+              className="rounded-sm border border-edge/70 bg-hull/75 p-6 sm:p-7 backdrop-blur-md shadow-2xl"
             >
-              {part.name}
-            </h2>
-
-            <p className="mt-4 text-sm leading-relaxed text-muted">{part.blurb}</p>
-
-            <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-edge/70 pt-5">
-              {part.specs.map((spec) => (
-                <div key={spec.label}>
-                  <dt className="telemetry text-faint">{spec.label}</dt>
-                  <dd className="mt-1.5 font-mono text-sm text-chalk">{spec.value}</dd>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-nasa animate-pulse" />
+                  <span className="telemetry text-nasa font-bold">{part.code}</span>
+                  <span className="text-muted">•</span>
+                  <span className="telemetry text-faint text-[10px]">STAGE {stepNumber}</span>
                 </div>
-              ))}
-            </dl>
+                <span className="telemetry text-faint text-[10px]">
+                  {stepNumber} / {String(totalParts).padStart(2, '0')}
+                </span>
+              </div>
 
-            <p className="telemetry mt-5 text-faint/70">
-              {triangles.toLocaleString()} triangles in this section of the model
-            </p>
-          </SpotlightCard>
-        </Reveal>
+              <h2
+                id={`part-${id}-heading`}
+                className="mt-3 text-2xl sm:text-3xl lg:text-4xl leading-tight font-semibold tracking-tight text-chalk"
+              >
+                {part.name}
+              </h2>
+
+              <p className="mt-3 text-sm leading-relaxed text-muted">{part.blurb}</p>
+
+              <dl className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2.5 border-t border-edge/70 pt-4">
+                {part.specs.map((spec) => (
+                  <div key={spec.label} className="bg-void/40 rounded px-2.5 py-1.5 border border-edge/40">
+                    <dt className="telemetry text-faint text-[10px]">{spec.label}</dt>
+                    <dd className="mt-0.5 font-mono text-xs sm:text-sm font-medium text-chalk truncate">
+                      {spec.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
+              <div className="mt-5 flex items-center justify-between border-t border-edge/40 pt-3 text-faint">
+                <span className="telemetry text-[10px] text-faint">
+                  {triangles.toLocaleString()} MESH TRIANGLES
+                </span>
+                <span className="telemetry text-[10px] text-nasa tracking-widest">
+                  EXPLODED VIEW
+                </span>
+              </div>
+            </SpotlightCard>
+          </Reveal>
+        </div>
       </div>
     </section>
   )

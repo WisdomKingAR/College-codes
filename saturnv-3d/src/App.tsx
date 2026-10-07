@@ -58,6 +58,17 @@ export default function App() {
     if ((ready || sceneFailed || !webgl) && boot) boot.remove()
   }, [ready, sceneFailed, webgl])
 
+  // All three of those flags come from the lazy chunk, so a chunk that never
+  // resolves — a dropped connection, a stale cached build, a proxy that eats it —
+  // leaves every one of them false and the overlay sitting over copy that is
+  // perfectly readable on its own. This is the backstop for the case the other
+  // effect cannot observe.
+  useEffect(() => {
+    if (ready || sceneFailed || !webgl) return
+    const timer = window.setTimeout(() => document.getElementById('boot')?.remove(), 6000)
+    return () => window.clearTimeout(timer)
+  }, [ready, sceneFailed, webgl])
+
   useEffect(() => {
     sceneState.reducedMotion = reducedMotion
   }, [reducedMotion])
@@ -92,7 +103,7 @@ export default function App() {
         trigger: track,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: true,
+        scrub: 0.3,
         onUpdate: (self) => {
           sceneState.progress = self.progress
           // Both of these are read every frame inside the Canvas, so they are
@@ -103,16 +114,35 @@ export default function App() {
         },
       })
 
-      // The camera trails the content slightly so the move feels weighted
-      // rather than locked 1:1 to the scrollbar.
+      // Measured off the hero rather than derived from innerHeight. The section is
+      // sized in svh so it keeps one height while the mobile URL bar shows and
+      // hides, which means innerHeight — the *largest* of the three viewport
+      // heights — is not the section's height, and a trigger built from it would
+      // scrub against an element it no longer matches. Re-read on every
+      // ScrollTrigger.refresh().
+      const heroHeight = () => document.getElementById('top')?.offsetHeight ?? window.innerHeight * 2
+
+      // Hero exit progress: across the back half of the hero's two screens.
+      ScrollTrigger.create({
+        trigger: track,
+        start: () => `top+=${heroHeight() * 0.2} top`,
+        end: () => `top+=${heroHeight()} top`,
+        scrub: 0.3,
+        onUpdate: (self) => {
+          sceneState.heroProgress = self.progress
+        },
+      })
+
+      // The camera holds at the top-down view during the hero section (Phase 0 and Phase 1),
+      // and begins its arc into the 3D breakdown once the hero has exited.
       gsap.to(sceneState, {
         cameraT: 1,
         ease: 'power1.inOut',
         scrollTrigger: {
           trigger: track,
-          start: 'top top',
+          start: () => `top+=${heroHeight() * 0.75} top`,
           end: 'bottom bottom',
-          scrub: 0.7,
+          scrub: 0.5,
         },
       })
 
@@ -130,14 +160,21 @@ export default function App() {
     }
   }, [])
 
-  const scrollToPart = useCallback((id: PartId) => {
-    const section = document.getElementById(`part-${id}`)
-    if (!section) return
-    // Jump to the middle of the section so the part is framed rather than
-    // clipped at the top of the viewport.
-    const top = section.offsetTop
-    lenisRef.current?.lenis?.scrollTo(top + section.offsetHeight * 0.12)
-  }, [])
+  const scrollToPart = useCallback(
+    (id: PartId) => {
+      const section = document.getElementById(`part-${id}`)
+      if (!section) return
+      // offsetTop resolves against the nearest *positioned* ancestor, which here
+      // is .scroll-track rather than the document — so it is only correct today
+      // because every element above the track happens to be fixed, and one added
+      // static sibling would silently break every jump in the nav. Measuring
+      // against the viewport and adding the current scroll offset is correct
+      // whatever the surrounding layout becomes.
+      const top = section.getBoundingClientRect().top + window.scrollY
+      lenisRef.current?.lenis?.scrollTo(top, { duration: reducedMotion ? 0 : 1.2 })
+    },
+    [reducedMotion],
+  )
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -145,20 +182,29 @@ export default function App() {
         root
         options={{
           autoRaf: false,
-          duration: reducedMotion ? 0.01 : 1.15,
+          duration: reducedMotion ? 0.01 : 0.85,
+          // Wheel smoothing is inertia the reader never asked for, and it is the one
+          // remaining piece of scroll-jacking: below the preference the page should
+          // move exactly as far as the reader moves it.
           smoothWheel: !reducedMotion,
-          wheelMultiplier: 0.9,
-          touchMultiplier: 1.4,
+          wheelMultiplier: 1.0,
+          touchMultiplier: 1.2,
           easing: (t: number) => Math.min(1, 1.001 - 2 ** (-10 * t)),
         }}
         ref={lenisRef}
       >
-        <a
-          href="#part-les"
-          className="telemetry sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-sm focus:bg-nasa focus:px-4 focus:py-2 focus:text-white"
+        {/* A button, not an href="#fragment": a native fragment jump scrolls outside
+            Lenis, which leaves Lenis's internal target stale so the page snaps
+            back on the next wheel event. SCROLL_PART_ORDER is sorted top-down,
+            so [0] is the first part rather than a hard-coded id that has to be
+            kept in step with the data. */}
+        <button
+          type="button"
+          onClick={() => scrollToPart(SCROLL_PART_ORDER[0])}
+          className="telemetry sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:cursor-pointer focus:rounded-sm focus:bg-nasa focus:px-4 focus:py-2 focus:text-white"
         >
           Skip to the breakdown
-        </a>
+        </button>
 
         {webgl && !sceneFailed ? (
           <WebGLBoundary>
@@ -166,7 +212,7 @@ export default function App() {
               <Scene
                 onLoaded={() => setReady(true)}
                 onError={() => setSceneFailed(true)}
-                className="fixed inset-0 z-0 h-screen w-full"
+                className="fixed inset-0 z-0 w-full"
               />
             </Suspense>
           </WebGLBoundary>
@@ -179,19 +225,19 @@ export default function App() {
         <Grain />
 
         <ReducedMotionProvider reduced={reducedMotion}>
-        <PartNav active={active} onSelect={scrollToPart} />
-        <Suspense fallback={null}>
-          <PartNavMobile active={active} onSelect={scrollToPart} />
-        </Suspense>
+          <PartNav active={active} onSelect={scrollToPart} />
+          <Suspense fallback={null}>
+            <PartNavMobile active={active} onSelect={scrollToPart} />
+          </Suspense>
 
-        <div ref={trackRef} className="scroll-track">
-          <Hero />
-          {SCROLL_PART_ORDER.map((id, index) => (
-            <PartSection key={id} id={id} index={index} active={active === id} />
-          ))}
-          <StatsOutro />
-        </div>
-      </ReducedMotionProvider>
+          <div ref={trackRef} className="scroll-track">
+            <Hero />
+            {SCROLL_PART_ORDER.map((id, index) => (
+              <PartSection key={id} id={id} index={index} active={active === id} />
+            ))}
+            <StatsOutro />
+          </div>
+        </ReducedMotionProvider>
 
         <footer className="relative z-10 border-t border-edge/60 bg-void/70 px-6 py-8 backdrop-blur-sm">
           <div className="mx-auto flex max-w-5xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
