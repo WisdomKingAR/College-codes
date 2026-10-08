@@ -60,3 +60,5 @@ yarn-error.log*
 # Local agent tooling (skills, prompts, MCP config). Machine-specific and
 # large — the data catalogs alone are tens of MB. Not coursework.
 .opencode/
+.venv/
+.vscode/
