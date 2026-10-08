@@ -45,7 +45,117 @@ merge(A,lb,mid,ub)
             j++
             k++
         }
-        
+         for (p = lb; p <= ub; p = p + 1)
+        {
+            A[p] = B[p]
+        }
     }
 }
 */
+
+#include <stdio.h>
+#include <conio.h>
+#define MAX 100
+
+void mergesort(int a[], int lb, int ub)
+{
+    int mid;
+    if (lb < ub)
+    {
+        mid = (lb + ub) / 2;
+        mergesort(a, lb, mid);
+        mergesort(a, mid + 1, ub);
+        merge(a, lb, mid, ub);
+    }
+}
+
+void merge(int a[], int lb, int mid, int ub)
+{
+    int i, j, k, p;
+    int b[MAX];
+
+    i = lb;
+    j = mid + 1;
+    k = lb;
+
+    while (i <= mid && j <= ub)
+    {
+        if (a[i] <= a[j])
+        {
+            b[k] = a[i];
+            i++;
+        }
+        else
+        {
+            b[k] = a[j];
+            j++;
+        }
+        k++;
+    }
+
+    if (i > mid)
+    {
+        while (j <= ub)
+        {
+            b[k] = a[j];
+            j++;
+            k++;
+        }
+    }
+    else
+    {
+        while (i <= mid)
+        {
+            b[k] = a[i];
+            i++;
+            k++;
+        }
+    }
+
+    for (p = lb; p <= ub; p = p + 1)
+    {
+        a[p] = b[p];
+    }
+}
+
+int main()
+{
+    int n, i, a[MAX], lb, ub;
+    clrscr();
+
+    printf("Enter the number of elements to sort : ");
+    scanf("%d", &n);
+
+    if (n > MAX)
+    {
+        printf("Array size out of bound");
+        return 0;
+    }
+
+    printf("\nEnter %d elements in array to sort : ", n);
+    for (i = 0; i < n; i++)
+    {
+        scanf("%d", &a[i]);
+    }
+
+    printf("\nArray before Sorting\n");
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\t", a[i]);
+    }
+
+    lb = 0;
+    ub = n - 1;
+
+    mergesort(a, lb, ub);
+
+    printf("\nArray after Sorting\n");
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\t", a[i]);
+    }
+
+    getch();
+    fflush(stdin);
+    return 0;
+}
