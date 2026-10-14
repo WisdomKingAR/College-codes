@@ -1,53 +1,76 @@
 from tkinter import *
 import mysql.connector
 
-conn = mysql.connector.connect(user='root', password='root', host='localhost', database='college')
-cursor=conn.cursor()
+# Establish database connection
+conn = mysql.connector.connect(
+    user='root',
+    password='pass@123',
+    host='localhost',
+    database='AARYAN_RAORANE_S004'
+)
+cursor = conn.cursor()
+
+
 class First:
+    def __init__(self, root):
+        self.root = root
+        self.f = Frame(root, height=500, width=500)
+        self.f.pack()
 
-   def __init__(self,root):
-       self.f=Frame(root,height=500,width=500)
-       self.f.pack()
-       self.l1=Label(text='First Name :')
-       self.l2=Label(text='Last Name :')
-       self.l3=Label(text='Age')
-       self.l4=Label(text='Tel No:')
-       self.e1=Entry(self.f,width=18)
-       self.e2=Entry(self.f,width=18)
-       self.e3=Entry(self.f,width=18)
-       self.e4=Entry(self.f,width=18)
-       self.b1=Button(self.f,text="Submit",command=self.display)
-       self.l1.place(x=50,y=30)
-       self.e1.place(x=200,y=30)
-       self.l2.place(x=50,y=60)
-       self.e2.place(x=200,y=60)
-       self.l3.place(x=50,y=90)
-       self.e3.place(x=200,y=90)
-       self.l4.place(x=50,y=130)
-       self.e4.place(x=200,y=130)
-       self.b1.place(x=200,y=150)
-   def display(self):
-       str1=self.e1.get()
-       str2=self.e2.get()
-       str3=int(self.e3.get())
-       str4=int(self.e4.get())
-       sql="Insert into student(f_name,l_name,age,tel_no)values('%s','%s','%d','%d')"%(str1,str2,str3,str4)
+        # Labels for the 'grades' table
+        self.l1 = Label(self.f, text='g_id :')
+        self.l2 = Label(self.f, text='g_type :')
+        self.l3 = Label(self.f, text='s_id : ')
+        self.l4 = Label(self.f, text='t_id :')
 
-       try:
-           cursor.execute(sql)
-           conn.commit()
-       except:
-           conn.rollback()
-       print("Data Inserted")
-       conn.close()
-       self.next_win()
+        self.e1 = Entry(self.f, width=18)
+        self.e2 = Entry(self.f, width=18)
+        self.e3 = Entry(self.f, width=18)
+        self.e4 = Entry(self.f, width=18)
 
-   def next_win(self):
-       root.destroy()
-       import next_win
+        self.b1 = Button(self.f, text="Submit", command=self.display)
+
+        # UI Placement setup
+        self.l1.place(x=50, y=30)
+        self.e1.place(x=200, y=30)
+        self.l2.place(x=50, y=60)
+        self.e2.place(x=200, y=60)
+        self.l3.place(x=50, y=90)
+        self.e3.place(x=200, y=90)
+        self.l4.place(x=50, y=130)
+        self.e4.place(x=200, y=130)
+        self.b1.place(x=200, y=150)
+
+    def display(self):
+        # Fetching data securely and type-casting appropriately
+        g_id = int(self.e1.get()) if self.e1.get().isdigit() else 0
+        g_type = self.e2.get()
+        s_id = int(self.e3.get()) if self.e3.get().isdigit() else 0
+        t_id = int(self.e4.get()) if self.e4.get().isdigit() else 0
+
+        # FIXED: Mapped to the 'grades' table with correct column fields
+        sql = "INSERT INTO grades (g_id, g_type, s_id, t_id) VALUES (%s, %s, %s, %s)"
+        values = (g_id, g_type, s_id, t_id)
+
+        try:
+            cursor.execute(sql, values)
+            conn.commit()
+            print("Grades Data Inserted Successfully")
+        except mysql.connector.Error as err:
+            conn.rollback()
+            print(f"Database Error: {err}")
+
+        self.next_win()
+
+    def next_win(self):
+        self.root.destroy()
+        # Make sure 'next_win.py' is inside the exact same folder layout
+        import next_win
+
+    # Main Window Loop Initialization
 
 
-root=Tk()
+root = Tk()
 root.title("Welcome To Tkinter GUI Programme")
-obj=First(root)
+obj = First(root)
 root.mainloop()
