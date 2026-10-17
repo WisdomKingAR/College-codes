@@ -35,7 +35,10 @@ export function Hero() {
           // the element it is attached to.
           start: () => `top+=${hero.offsetHeight * 0.2} top`,
           end: 'bottom top',
-          scrub: 0.5,
+          // scrub: true, to match the track triggers. Lenis is the one smoother;
+          // a lagging number here would peel the hero copy away on a different
+          // curve from everything else moving at the same moment.
+          scrub: true,
         },
       })
     }, hero)
@@ -60,7 +63,11 @@ export function Hero() {
         <SplitHeading
           tag="h1"
           text="SATURN V"
-          className="text-[clamp(3rem,13vw,11rem)] leading-[0.85] font-semibold tracking-[-0.03em] text-chalk"
+          // 10rem, not 11rem. At the 11rem cap the two words of the wordmark
+          // measured wider than the gutter at around 1500px, so the heading
+          // touched the edges of the viewport on a laptop before it stopped
+          // growing — the clamp was capping a size the layout could not hold.
+          className="text-[clamp(3rem,13vw,10rem)] leading-[0.9] font-semibold tracking-[-0.03em] text-chalk"
         />
 
         <p className="mt-8 max-w-xl text-base leading-relaxed text-muted sm:text-lg">

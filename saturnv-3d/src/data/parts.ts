@@ -200,6 +200,18 @@ export const PART_TRIANGLES: Record<PartId, number> = Object.fromEntries(
   GEOMETRY.parts.map((p) => [p.id, p.tris]),
 ) as Record<PartId, number>
 
+/**
+ * Nominal band each part occupies along the stack, in metres above the base.
+ *
+ * The edges the model was split on (`from`/`to`), not the measured bbox — the
+ * coarse mesh overshoots a band edge by up to half a metre, so the measured
+ * extent is not the boundary. Panels quote this as the part's position on the
+ * vehicle, which is why it must be the nominal figure.
+ */
+export const PART_BAND: Record<PartId, { from: number; to: number }> = Object.fromEntries(
+  GEOMETRY.parts.map((p) => [p.id, { from: p.from, to: p.to }]),
+) as Record<PartId, { from: number; to: number }>
+
 export const VEHICLE_STATS = [
   { label: 'Height', value: '110.6', unit: 'm' },
   { label: 'Lift-off mass', value: '2,970', unit: 't' },

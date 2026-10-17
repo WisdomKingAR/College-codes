@@ -1,6 +1,16 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/*
+ * The change log and the design notes are Markdown at the repo root, and
+ * Tailwind's automatic source detection treats every tracked file as content —
+ * so class names quoted in prose (a fix list naming a shadow utility, a diff
+ * describing a background token) were compiled into the stylesheet as rules for
+ * classes no component uses. Excluding the docs keeps the CSS to what the source
+ * actually references.
+ */
+@source not '../*.md';
+
 @theme {
   /* NASA technical: near-black vacuum, cool white type, one red accent. */
   --color-void: #04060a;
@@ -22,8 +32,13 @@
   --color-nasa-dim: #a82a17;
   --color-flame: #ffb347;
 
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Cascadia Mono', monospace;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* The variable family names come from the @fontsource-variable imports in
+     main.tsx. The plain names are kept behind them so a machine with Inter or
+     JetBrains Mono installed still gets a real face rather than a fallback. */
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular',
+    'Cascadia Mono', monospace;
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }

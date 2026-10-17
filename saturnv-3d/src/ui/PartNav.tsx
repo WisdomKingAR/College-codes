@@ -29,7 +29,10 @@ export function PartNav({
       aria-label="Vehicle sections"
       className="pointer-events-auto fixed top-1/2 right-4 z-30 hidden -translate-y-1/2 md:block"
     >
-      <ol className="flex flex-col items-end gap-1">
+      {/* gap-0.5, not gap-1: the buttons carry their own vertical padding, and
+          adding a gap on top of it only pushed the rail past the height the
+          eight targets need. */}
+      <ol className="flex flex-col items-end gap-0.5">
         {NAV_ITEMS.map((item) => {
           const isActive = item.id === active
           return (
@@ -39,7 +42,11 @@ export function PartNav({
                 onClick={() => onSelect(item.id)}
                 aria-current={isActive ? 'true' : undefined}
                 aria-label={item.label}
-                className="group flex items-center justify-end gap-3 py-1.5 pl-3 text-right"
+                // py-2.5, not py-1.5 — 20px of padding on an 11px line box was a
+                // ~23px target, well under the 44px a pointer needs. This puts
+                // the rail at roughly 250px for eight items, which still clears
+                // the shortest viewport it is shown on.
+                className="group flex items-center justify-end gap-3 py-2.5 pl-3 text-right"
               >
                 <span
                   className={`telemetry transition-all duration-300 ${

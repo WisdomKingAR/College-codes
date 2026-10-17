@@ -44,7 +44,10 @@ export function PartNavMobile({
             variant="outline"
             size="icon"
             aria-label="Jump to a vehicle section"
-            className="border-edge bg-hull/80 text-chalk hover:bg-edge-soft hover:text-chalk"
+            /* size-11 is 44px, the smallest comfortable touch target, and it is
+               resolved against the variant's own size-8 by twMerge inside Button
+               so there is no stylesheet-order ambiguity. */
+            className="size-11 border-edge bg-hull/80 text-chalk hover:bg-edge-soft hover:text-chalk"
           >
             <MenuIcon />
           </Button>

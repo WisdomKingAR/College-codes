@@ -35,7 +35,12 @@ export function Scene({ onLoaded, onError, className }: SceneProps) {
   return (
     <div className={className} aria-hidden="true">
       <Canvas
-        dpr={[1, 2]}
+        // 1.5, not 2. At dpr 2 the composer renders four times the pixels of dpr 1,
+        // and Bloom is the most expensive thing in the frame; the reference device
+        // here (a mid-range laptop) spends that budget on the scroll instead. The
+        // difference between 1.5 and 2 is not visible on the star field or the
+        // flat-shaded hull, which is all this scene draws.
+        dpr={[1, 1.5]}
         gl={{
           antialias: true,
           powerPreference: 'high-performance',

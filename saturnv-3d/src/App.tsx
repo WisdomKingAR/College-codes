@@ -85,14 +85,31 @@ export default function App() {
 
     const context = gsap.context(() => {
       // One clock for the whole site. Lenis is configured with autoRaf:false, so
-      // nothing advances it unless something calls raf() every frame; GSAP's
-      // ticker already drives ScrollTrigger and the R3F render loop, and two
-      // competing rAF loops is the usual source of scroll jitter. Registered
-      // inside this context so it is torn down with the rest.
+      // nothing advances it unless something calls raf() every frame, and GSAP's
+      // ticker has to run for ScrollTrigger regardless. Driving Lenis from it
+      // keeps both on the same clock. Registered inside this context so it is
+      // torn down with the rest.
       const lenis = lenisRef.current?.lenis
-      const update = (time: number) => lenis?.raf(time * 1000)
+
+      // That clock has to be safe to hand over. Lenis's raf() advances its
+      // animation clock by whatever delta it is given and clamps nothing, and
+      // `lagSmoothing(0)` — which used to be set here — switches GSAP's own guard
+      // off wholesale ("zero should be interpreted as basically unlimited"). So a
+      // single long frame used to arrive as one enormous step: with an ease-out
+      // over 0.85s, a 250 ms stall is ~87% of the remaining distance, which is
+      // the leap that reads as harsh scrolling. So GSAP's default guard goes back
+      // (500 ms threshold, 33 ms of borrowed time) *and* the clock handed to
+      // Lenis never advances by more than one frame-cap, which absorbs a stall
+      // rather than jumping on it. 50 ms is the 20 fps floor — below that the
+      // frame drop is visible whatever happens here.
+      gsap.ticker.lagSmoothing(500, 33)
+      const MAX_FRAME_MS = 50
+      let virtualTime = 0
+      const update = (_time: number, deltaTime: number) => {
+        virtualTime += Math.min(deltaTime, MAX_FRAME_MS)
+        lenis?.raf(virtualTime)
+      }
       gsap.ticker.add(update)
-      gsap.ticker.lagSmoothing(0)
 
       // Lenis wraps the native scroll position rather than replacing it, so
       // ScrollTrigger needs to be nudged on Lenis's own scroll event to stay in
@@ -103,7 +120,10 @@ export default function App() {
         trigger: track,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.3,
+        // scrub: true, not a lagging number. Lenis is already the one smoother;
+        // a second, slower smoother on top of it means the 3D and the copy
+        // travel the same distance on different curves and visibly drift apart.
+        scrub: true,
         onUpdate: (self) => {
           sceneState.progress = self.progress
           // Both of these are read every frame inside the Canvas, so they are
@@ -127,7 +147,7 @@ export default function App() {
         trigger: track,
         start: () => `top+=${heroHeight() * 0.2} top`,
         end: () => `top+=${heroHeight()} top`,
-        scrub: 0.3,
+        scrub: true,
         onUpdate: (self) => {
           sceneState.heroProgress = self.progress
         },
@@ -142,7 +162,7 @@ export default function App() {
           trigger: track,
           start: () => `top+=${heroHeight() * 0.75} top`,
           end: 'bottom bottom',
-          scrub: 0.5,
+          scrub: true,
         },
       })
 
@@ -182,14 +202,19 @@ export default function App() {
         root
         options={{
           autoRaf: false,
-          duration: reducedMotion ? 0.01 : 0.85,
+          // lerp, not duration+easing. Lenis restarts a duration-based animation
+          // from its current value on every wheel event, so a continuous scroll
+          // never escapes the easing curve's steep head — the page moves in fast
+          // bursts and then creeps. lerp settles at one rate regardless
+          // (damp(value, to, lerp * 60, deltaTime), so it is frame-rate
+          // independent), which is the difference between "weighted" and "harsh".
+          // 1 collapses to instant, which is the reduced-motion behaviour.
+          lerp: reducedMotion ? 1 : 0.1,
           // Wheel smoothing is inertia the reader never asked for, and it is the one
           // remaining piece of scroll-jacking: below the preference the page should
           // move exactly as far as the reader moves it.
           smoothWheel: !reducedMotion,
           wheelMultiplier: 1.0,
-          touchMultiplier: 1.2,
-          easing: (t: number) => Math.min(1, 1.001 - 2 ** (-10 * t)),
         }}
         ref={lenisRef}
       >

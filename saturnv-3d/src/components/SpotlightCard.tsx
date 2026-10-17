@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface Position {
   x: number;
@@ -47,6 +48,14 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
     setOpacity(0);
   };
 
+  // `cn` (twMerge) rather than raw interpolation. The previous template literal
+  // put this component's own stock-Tailwind neutral background, neutral border
+  // and 2rem padding into the same class attribute as the caller's project
+  // palette tokens and 1.5rem padding, and Tailwind resolves that conflict by
+  // stylesheet order, not attribute order — the neutrals won, so the card
+  // silently rendered in Tailwind's greys instead of the project palette. Only
+  // what this component actually owns stays here now: the positioning and the
+  // clipping for the spotlight overlay.
   return (
     <div
       ref={divRef}
@@ -55,7 +64,7 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
       onBlur={handleBlur}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative rounded-3xl border border-neutral-800 bg-neutral-900 overflow-hidden p-8 ${className}`}
+      className={cn('relative overflow-hidden', className)}
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-in-out"

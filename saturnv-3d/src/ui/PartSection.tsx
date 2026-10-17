@@ -1,4 +1,4 @@
-import { PART_BY_ID, PART_TRIANGLES, SCROLL_PART_ORDER, type PartId } from '@/data/parts'
+import { PART_BAND, PART_BY_ID, PART_TRIANGLES, SCROLL_PART_ORDER, type PartId } from '@/data/parts'
 import SpotlightCard from '@/components/SpotlightCard'
 import { Reveal } from '@/ui/motion'
 
@@ -20,6 +20,7 @@ export function PartSection({
 }) {
   const part = PART_BY_ID[id]
   const triangles = PART_TRIANGLES[id]
+  const band = PART_BAND[id]
   const totalParts = SCROLL_PART_ORDER.length
   const stepNumber = String(index + 1).padStart(2, '0')
 
@@ -30,7 +31,7 @@ export function PartSection({
       className="relative flex h-[100svh] items-center px-4 sm:px-8 lg:px-16"
     >
       <div
-        className={`flex items-center gap-4 sm:gap-6 w-full max-w-xl transition-all duration-500 ${
+        className={`flex items-center gap-4 sm:gap-6 w-full max-w-xl transition-[opacity,transform] duration-500 ${
           // Fade the inactive panels rather than leaving eight stacked cards at
           // full strength. Done on the wrapper in CSS so it cannot fight the
           // entrance animation on the contents.
@@ -44,7 +45,7 @@ export function PartSection({
         >
           <span className="telemetry text-nasa font-mono text-[10px] tracking-widest">{stepNumber}</span>
           <div className="w-px flex-1 my-3 bg-gradient-to-b from-nasa/60 via-edge to-edge/20" />
-          <span className="telemetry rotate-180 [writing-mode:vertical-rl] text-[9px] tracking-widest text-faint">
+          <span className="telemetry rotate-180 [writing-mode:vertical-rl] text-[10px] tracking-widest text-faint">
             {part.code}
           </span>
         </div>
@@ -54,14 +55,18 @@ export function PartSection({
           <Reveal className={active ? '' : 'pointer-events-none'}>
             <SpotlightCard
               spotlightColor="rgba(252, 61, 33, 0.14)"
-              className="rounded-sm border border-edge/70 bg-hull/75 p-6 sm:p-7 backdrop-blur-md shadow-2xl"
+              className="rounded-sm border border-edge/70 bg-hull/95 p-6 sm:p-7"
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2.5">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-nasa animate-pulse" />
+                  <span
+                    className={`inline-block h-1.5 w-1.5 rounded-full bg-nasa ${
+                      active ? 'animate-pulse' : ''
+                    }`}
+                  />
                   <span className="telemetry text-nasa font-bold">{part.code}</span>
                   <span className="text-muted">•</span>
-                  <span className="telemetry text-faint text-[10px]">STAGE {stepNumber}</span>
+                  <span className="telemetry text-faint text-[10px]">SECTION {stepNumber}</span>
                 </div>
                 <span className="telemetry text-faint text-[10px]">
                   {stepNumber} / {String(totalParts).padStart(2, '0')}
@@ -79,7 +84,7 @@ export function PartSection({
 
               <dl className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2.5 border-t border-edge/70 pt-4">
                 {part.specs.map((spec) => (
-                  <div key={spec.label} className="bg-void/40 rounded px-2.5 py-1.5 border border-edge/40">
+                  <div key={spec.label} className="bg-void/70 rounded px-2.5 py-1.5 border border-edge/40">
                     <dt className="telemetry text-faint text-[10px]">{spec.label}</dt>
                     <dd className="mt-0.5 font-mono text-xs sm:text-sm font-medium text-chalk truncate">
                       {spec.value}
@@ -93,7 +98,7 @@ export function PartSection({
                   {triangles.toLocaleString()} MESH TRIANGLES
                 </span>
                 <span className="telemetry text-[10px] text-nasa tracking-widest">
-                  EXPLODED VIEW
+                  {band.from.toFixed(1)}–{band.to.toFixed(1)} M ABOVE BASE
                 </span>
               </div>
             </SpotlightCard>
